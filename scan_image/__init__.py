@@ -9,9 +9,7 @@ import numpy as np
 import cv2
 
 # Configure depth and color streams
-from scanner.detect import DetectPerson
-from  scanner.test import de
-pipeline = rs.pipeline()
+pipeline = rs.pipeline(ctx=None)
 config = rs.config()
 config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
 config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
@@ -20,7 +18,6 @@ config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
 pipeline.start(config)
 
 try:
-    dp = DetectPerson()
     while True:
         # Wait for a coherent pair of frames: depth and color
         frames = pipeline.wait_for_frames()
@@ -32,13 +29,12 @@ try:
         # Convert images to numpy arrays
         depth_image = np.asanyarray(depth_frame.get_data())
         color_image = np.asanyarray(color_frame.get_data(), dtype=np.uint8)
-        dp.detect(color_image)
-        #de(color_image)
+        # de(color_image)
         # Apply colormap on depth image (image must be converted to 8-bit per pixel first)
-        #depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
+        # depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
 
         # Stack both images horizontally
-        #images = np.hstack((color_image, depth_colormap))
+        # images = np.hstack((color_image, depth_colormap))
 
         # Show images
         # cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
