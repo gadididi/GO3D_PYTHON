@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 
+from take_frame import outliersremoval
+
 
 def load_frame(frame_name):
     depth_image = np.loadtxt(f"{frame_name}_depth.txt", dtype=int)
@@ -10,6 +12,12 @@ def load_frame(frame_name):
     print(accel_image)
     print(gyro_image)
 
+    depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
     cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
-    cv2.imshow('RealSense', depth_image)
+    cv2.imshow('RealSense', depth_colormap)
     cv2.waitKey()
+
+
+def load_frame_and_remove_depth_outliers(frame_name):
+    depth_image = np.loadtxt(f"{frame_name}_depth.txt", dtype=int)
+    outliersremoval.remove_outliers_by_depth(depth_image, 1000)

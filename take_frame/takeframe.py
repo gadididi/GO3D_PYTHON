@@ -2,7 +2,6 @@ import pyrealsense2 as rs
 import numpy as np
 import cv2
 import keyboard
-import matplotlib.pyplot as plt
 
 
 def gyro_data(gyro):
@@ -52,6 +51,7 @@ class FrameTaker:
                     print("exiting")
                     return
 
+                cv2.circle(color_image, (320, 240), 2, (0, 0, 255), -1)
                 cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
                 cv2.imshow('RealSense', color_image)
                 cv2.waitKey(1)
