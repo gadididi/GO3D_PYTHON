@@ -4,8 +4,8 @@ import numpy as np
 from take_frame import outliersremoval
 
 
-def load_frame(frame_name):
-    depth_image = np.loadtxt(f"{frame_name}_depth.txt", dtype=int)
+def load_frame_and_show(frame_name):
+    depth_image = np.loadtxt(f"{frame_name}_depth.txt", dtype=float).T
     accel_image = np.loadtxt(f"{frame_name}_accel.txt", dtype=float)
     gyro_image = np.loadtxt(f"{frame_name}_gyro.txt", dtype=float)
 
@@ -18,6 +18,14 @@ def load_frame(frame_name):
     cv2.waitKey()
 
 
+def load_frame(frame_name):
+    depth_image = np.loadtxt(f"{frame_name}_depth.txt", dtype=float).T
+    accel_image = np.loadtxt(f"{frame_name}_accel.txt", dtype=float)
+    gyro_image = np.loadtxt(f"{frame_name}_gyro.txt", dtype=float)
+
+    return depth_image, accel_image, gyro_image
+
+
 def load_frame_and_remove_depth_outliers(frame_name):
-    depth_image = np.loadtxt(f"{frame_name}_depth.txt", dtype=int)
-    outliersremoval.remove_outliers_by_depth(depth_image, 1000)
+    depth_image = np.loadtxt(f"{frame_name}_depth.txt", dtype=float).T
+    outliersremoval.remove_outliers_by_depth(depth_image, 0.1)

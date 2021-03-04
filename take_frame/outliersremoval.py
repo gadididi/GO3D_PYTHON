@@ -3,14 +3,25 @@ import cv2
 
 
 def remove_outliers_by_depth(depth_image, depth_threshold):
-    center_x, center_y = get_image_center(depth_image)
-    center_depth = depth_image[center_x][center_y]
+    center_row, center_col = get_image_center(depth_image)
+    center_depth = depth_image[center_row][center_col]
     for row in range(depth_image.shape[0]):
         for col in range(depth_image.shape[1]):
             if compare_depths_delta(depth_image[row][col], center_depth) > depth_threshold:
                 depth_image[row][col] = 10000
 
     show_results(depth_image)
+
+
+def remove_outliers_by_depth_and_return_image(depth_image, depth_threshold):
+    center_row, center_col = get_image_center(depth_image)
+    center_depth = depth_image[center_row][center_col]
+    for row in range(depth_image.shape[0]):
+        for col in range(depth_image.shape[1]):
+            if compare_depths_delta(depth_image[row][col], center_depth) > depth_threshold:
+                depth_image[row][col] = 10000
+
+    return depth_image
 
 
 def get_image_center(depth_image):
