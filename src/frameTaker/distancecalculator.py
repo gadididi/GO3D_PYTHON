@@ -2,7 +2,7 @@ import math
 import numpy as np
 import vg
 
-from take_frame.outliersremoval import get_image_center
+from src.frameTaker.outliersremoval import get_image_center
 
 
 def measure_distance(pixel_1, pixel_2, depth_frame):

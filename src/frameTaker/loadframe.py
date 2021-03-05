@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-from take_frame import outliersremoval
+from src.frameTaker import outliersremoval
 
 
 def load_frame_and_show(frame_name):

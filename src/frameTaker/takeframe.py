@@ -16,15 +16,15 @@ def accel_data(accel):
 
 
 class FrameTaker:
-    def __init__(self, scan_name):
+    def __init__(self):
         self._frame_count = 0
-        self._scan_name = scan_name
         self._pipeline = rs.pipeline()
         self._config = rs.config()
         self._config.enable_stream(rs.stream.depth, ROWS, COLS, rs.format.z16, 30)
         self._config.enable_stream(rs.stream.color, ROWS, COLS, rs.format.bgr8, 30)
         self._config.enable_stream(rs.stream.accel, rs.format.motion_xyz32f, 200)
         self._config.enable_stream(rs.stream.gyro, rs.format.motion_xyz32f, 200)
+        self._frames_cache = []
 
     def start_stream(self):
         # Start streaming
@@ -47,11 +47,12 @@ class FrameTaker:
                 gyro_data_image = np.asanyarray(gyro_frame)
 
                 if keyboard.is_pressed('p'):  # if key 'p' is pressed
-                    self.save_np_arrays(depth_frame=depth_frame, accel_data_image=accel_data_image,
-                                        gyro_data_image=gyro_data_image)
+                    self._frames_cache.append([depth_frame, accel_data_image, gyro_data_image])
+                    self._frame_count += 1
                     print("picture taken")
                 if keyboard.is_pressed('esc'):  # if key 'esc' is pressed
                     print("exiting")
+                    self._pipeline.stop()
                     return
 
                 cv2.circle(color_image, (int(color_image.shape[1] / 2), int(color_image.shape[0] / 2)), 2, (0, 0, 255),
@@ -60,17 +61,8 @@ class FrameTaker:
                 cv2.imshow('RealSense', color_image)
                 cv2.waitKey(1)
 
-        finally:
-            # Stop streaming
-            self._pipeline.stop()
+        except IOError as e:
+            print(e)
 
-    def save_np_arrays(self, depth_frame, accel_data_image, gyro_data_image):
-        depth_array = np.empty(shape=(ROWS, COLS), dtype=float)
-
-        for row in range(ROWS):
-            for col in range(COLS):
-                depth_array[row][col] = depth_frame.get_distance(row, col)
-
-        np.savetxt(f"{self._scan_name}_{self._frame_count}_depth.txt", depth_array, fmt='%f')
-        np.savetxt(f"{self._scan_name}_{self._frame_count}_accel.txt", accel_data_image, fmt='%f')
-        np.savetxt(f"{self._scan_name}_{self._frame_count}_gyro.txt", gyro_data_image, fmt='%f')
+    def get_frame_cache(self):
+        return self._frames_cache

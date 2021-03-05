@@ -1,9 +1,7 @@
-from take_frame.loadframe import load_frame_and_show, load_frame_and_remove_depth_outliers, load_frame
-from take_frame.distancecalculator import find_highest_valid_pixel, find_lowest_valid_pixel, measure_distance, \
+from src.frameTaker.loadframe import load_frame
+from src.frameTaker.distancecalculator import measure_distance, \
     find_highest_valid_pixel_in_the_center, find_lowest_valid_pixel_in_the_center
-from take_frame.outliersremoval import remove_outliers_by_depth_and_return_image
-from take_frame.takeframe import FrameTaker
-from unit_testing.framecapturetest import start_test
+from src.frameTaker.outliersremoval import remove_outliers_by_depth_and_return_image
 import cv2
 
 
