@@ -2,7 +2,7 @@ import pyrealsense2 as rs
 import numpy as np
 
 # Configure depth and color streams
-from take_frame.takeframe import accel_data, gyro_data
+from src.frameTaker.takeframe import accel_data, gyro_data
 
 
 def start_test():
