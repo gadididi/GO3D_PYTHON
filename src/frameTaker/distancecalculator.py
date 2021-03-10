@@ -4,6 +4,12 @@ import vg
 
 from src.frameTaker.outliersremoval import get_image_center
 
+FOCAL_LEN_CM = 0.188
+SENSOR_HEIGHT_CM = 2.6
+SENSOR_WIDTH_CM = 6.1
+ROWS = 640
+COLS = 480
+
 
 def measure_distance(pixel_1, pixel_2, depth_frame):
     pixel_1_row = pixel_1[0]
@@ -17,6 +23,16 @@ def measure_distance(pixel_1, pixel_2, depth_frame):
     v_vector = np.array([pixel_2_col, pixel_2_row, pixel_2_dist])
 
     return get_distance(u_vector, v_vector)
+
+
+def GSD(depth_frame):
+    center_row, center_col = get_image_center(depth_frame)
+    center_distance_cm = depth_frame[center_row][center_col] * 100
+
+    gsd_h = (center_distance_cm * SENSOR_HEIGHT_CM) / (FOCAL_LEN_CM * ROWS)
+    gsd_w = (center_distance_cm * SENSOR_WIDTH_CM) / (FOCAL_LEN_CM * COLS)
+
+    return max(gsd_h, gsd_w)
 
 
 def get_distance(u_vector, v_vector):

@@ -17,6 +17,6 @@ def save_frames_to_file_system(frames, file_name):
             for col in range(COLS):
                 depth_array[row][col] = depth_frame.get_distance(row, col)
 
-        np.savetxt(f"{file_name}]_depth_{frame_count}.txt", depth_array, fmt='%f')
-        np.savetxt(f"{file_name}_accel_{frame_count}..txt", accel_data_image, fmt='%f')
-        np.savetxt(f"{file_name}_gyro_{frame_count}..txt", gyro_data_image, fmt='%f')
+        np.savetxt(f"{file_name}_depth_{frame_count}.txt", depth_array, fmt='%f')
+        np.savetxt(f"{file_name}_accel_{frame_count}.txt", accel_data_image, fmt='%f')
+        np.savetxt(f"{file_name}_gyro_{frame_count}.txt", gyro_data_image, fmt='%f')

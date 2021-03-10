@@ -18,10 +18,10 @@ def load_frame_and_show(frame_name):
     cv2.waitKey()
 
 
-def load_frame(frame_name):
-    depth_image = np.loadtxt(f"{frame_name}_depth.txt", dtype=float).T
-    accel_image = np.loadtxt(f"{frame_name}_accel.txt", dtype=float)
-    gyro_image = np.loadtxt(f"{frame_name}_gyro.txt", dtype=float)
+def load_frame(frame_name, frame_number):
+    depth_image = np.loadtxt(f"{frame_name}_depth_{frame_number}.txt", dtype=float).T
+    accel_image = np.loadtxt(f"{frame_name}_accel_{frame_number}.txt", dtype=float)
+    gyro_image = np.loadtxt(f"{frame_name}_gyro_{frame_number}.txt", dtype=float)
 
     return depth_image, accel_image, gyro_image
 
