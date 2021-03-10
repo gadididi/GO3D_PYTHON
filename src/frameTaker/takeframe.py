@@ -35,7 +35,7 @@ class FrameTaker:
 
         try:
             while True:
-                frames = self._pipeline.wait_for_frames()
+                frames = self._pipeline.wait_for_frames(timeout_ms=30000)
                 depth_frame = frames.get_depth_frame()
                 color_frame = frames.get_color_frame()
 
