@@ -1,9 +1,17 @@
+import cv2
+import base64
 from flask import Flask, render_template
+from flask_cors import CORS
+
+from src.flowManager.flowManager import FlowManager
 
 app = Flask(__name__)
+flow_manager = FlowManager()
+CORS(app)
+cap = cv2.VideoCapture(0)
+
 
 # ------------------------------------------------- Members --------------------------------------------------
-
 
 
 # ------------------------------------------------- Home page ------------------------------------------------
@@ -37,12 +45,16 @@ def settings():
 # ----------------------------------------------- Scanning section ---------------------------------------------
 @app.route('/scan', methods=['GET'])
 def start_scan():
-    print("start scan")
+    flow_manager.start_scan_stream()
 
 
 @app.route('/scan/get_camera_stream', methods=['GET'])
 def get_camera_stream():
-    print("start scan")
+    # Capture frame-by-frame
+    image = flow_manager.get_last_image()
+    retval, buffer = cv2.imencode('.jpg', image)
+    jpg_as_text = base64.b64encode(buffer)
+    return {'image': str(jpg_as_text)}
 
 
 @app.route('/scan/take_snapshot', methods=['POST', 'GET'])
@@ -61,4 +73,5 @@ def cancel_scan():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5000)
+    cap.release()
