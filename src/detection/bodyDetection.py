@@ -40,7 +40,8 @@ def realtime_demo(img_wh):
         seg_img = np.argmax(seg_labels, axis=2)
 
         # Display
-        seg_img = cv2.resize(seg_img, (640, 480))
+        # seg_img = seg_img[:, :, np.newaxis]
+        # seg_img = cv2.resize(seg_img, (640, 480))
         display_img = cv2.resize(bgr_img, (640, 480))
         plt.figure(1)
         plt.imshow(seg_img)
@@ -57,4 +58,5 @@ def realtime_demo(img_wh):
         cap.release()
         cv2.destroyAllWindows()
 
-        realtime_demo(256)
+
+realtime_demo(256)
