@@ -2,7 +2,11 @@ import cv2
 
 import numpy as np
 
-im = cv2.imread('test.jpg', cv2.IMREAD_UNCHANGED)
+im = cv2.imread('../measureAnalysis/test.png', cv2.IMREAD_UNCHANGED)
+cv2.imshow("sss", im)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+# im = cv2.resize(im, )
 alpha = im[:, :, 3]
 cdata = im[:, :, :3]
 cdata = cv2.cvtColor(cdata, cv2.COLOR_BGR2GRAY)
