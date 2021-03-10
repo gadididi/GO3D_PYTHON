@@ -28,6 +28,7 @@ class FrameTaker:
         self._take_snapshot = False
         self._exit_scan = False
         self._last_image = None
+        self._last_depth_image = None
 
     def start_stream(self):
         # Start streaming
@@ -46,6 +47,7 @@ class FrameTaker:
                     continue
 
                 color_image = np.asanyarray(color_frame.get_data())
+                depth_image = np.asanyarray(depth_frame.get_data())
                 accel_data_image = np.asanyarray(accel_frame)
                 gyro_data_image = np.asanyarray(gyro_frame)
 
@@ -60,10 +62,10 @@ class FrameTaker:
                     self._pipeline.stop()
                     return
 
-                cv2.circle(color_image, (int(color_image.shape[1] / 2), int(color_image.shape[0] / 2)), 2, (0, 0, 255),
-                           -1)
+                cv2.circle(color_image, (int(color_image.shape[1] / 2), int(color_image.shape[0] / 2)), 2, (0, 0, 255), -1)
                 cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
                 self._last_image = color_image
+                self._last_depth_image = depth_image
                 cv2.imshow('RealSense', color_image)
                 cv2.waitKey(1)
 
@@ -81,3 +83,6 @@ class FrameTaker:
 
     def get_last_image(self):
         return self._last_image
+
+    def get_last_depth_image(self):
+        return self._last_depth_image
