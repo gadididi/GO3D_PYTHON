@@ -16,3 +16,11 @@ class FlowManager:
     def get_and_save_scan_saved_frames(self, file_name):
         return saveframe.save_frames_to_file_system(self._frameTaker.get_frame_cache(), file_name)
 
+    def take_snapshot(self):
+        self._frameTaker.take_snapshot()
+
+    def exit_scan(self):
+        self._frameTaker.exit_scan()
+
+    def get_last_image(self):
+        return self._frameTaker.get_last_image()

@@ -25,6 +25,9 @@ class FrameTaker:
         self._config.enable_stream(rs.stream.accel, rs.format.motion_xyz32f, 200)
         self._config.enable_stream(rs.stream.gyro, rs.format.motion_xyz32f, 200)
         self._frames_cache = []
+        self._take_snapshot = False
+        self._exit_scan = False
+        self._last_image = None
 
     def start_stream(self):
         # Start streaming
@@ -46,11 +49,13 @@ class FrameTaker:
                 accel_data_image = np.asanyarray(accel_frame)
                 gyro_data_image = np.asanyarray(gyro_frame)
 
-                if keyboard.is_pressed('p'):  # if key 'p' is pressed
+                if keyboard.is_pressed('p') or self._take_snapshot:  # if key 'p' is pressed
+                    self._take_snapshot = False
                     self._frames_cache.append([depth_frame, accel_data_image, gyro_data_image])
                     self._frame_count += 1
                     print("picture taken")
-                if keyboard.is_pressed('esc'):  # if key 'esc' is pressed
+                if keyboard.is_pressed('esc') or self._exit_scan:  # if key 'esc' is pressed
+                    self._exit_scan = False
                     print("exiting")
                     self._pipeline.stop()
                     return
@@ -58,6 +63,7 @@ class FrameTaker:
                 cv2.circle(color_image, (int(color_image.shape[1] / 2), int(color_image.shape[0] / 2)), 2, (0, 0, 255),
                            -1)
                 cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
+                self._last_image = color_image
                 cv2.imshow('RealSense', color_image)
                 cv2.waitKey(1)
 
@@ -66,3 +72,12 @@ class FrameTaker:
 
     def get_frame_cache(self):
         return self._frames_cache
+
+    def take_snapshot(self):
+        self._take_snapshot = True
+
+    def exit_scan(self):
+        self._exit_scan = True
+
+    def get_last_image(self):
+        return self._last_image
