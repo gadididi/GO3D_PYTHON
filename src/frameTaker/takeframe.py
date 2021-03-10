@@ -1,3 +1,5 @@
+import time
+
 import pyrealsense2 as rs
 import numpy as np
 import cv2
@@ -33,18 +35,26 @@ class FrameTaker:
     def start_stream(self):
         # Start streaming
         self._pipeline.start(self._config)
+        align_to = rs.stream.color
+        align = rs.align(align_to)
 
         try:
             while True:
                 frames = self._pipeline.wait_for_frames(timeout_ms=30000)
-                depth_frame = frames.get_depth_frame()
-                color_frame = frames.get_color_frame()
+                aligned_frames = align.process(frames)
+                color_frame = aligned_frames.get_color_frame()
+                depth_frame = aligned_frames.get_depth_frame()
+
+                color_intrin = color_frame.profile.as_video_stream_profile().intrinsics
 
                 accel_frame = accel_data(frames[2].as_motion_frame().get_motion_data())
                 gyro_frame = gyro_data(frames[3].as_motion_frame().get_motion_data())
 
                 if not depth_frame or not color_frame:
                     continue
+
+                # Intrinsics
+                color_intrin = color_frame.profile.as_video_stream_profile().intrinsics
 
                 color_image = np.asanyarray(color_frame.get_data())
                 depth_image = np.asanyarray(depth_frame.get_data())
@@ -53,8 +63,9 @@ class FrameTaker:
 
                 if keyboard.is_pressed('p') or self._take_snapshot:  # if key 'p' is pressed
                     self._take_snapshot = False
-                    self._frames_cache.append([depth_frame, accel_data_image, gyro_data_image])
+                    self._frames_cache.append([depth_frame, accel_data_image, gyro_data_image, color_intrin])
                     self._frame_count += 1
+                    time.sleep(0.5)
                     print("picture taken")
                 if keyboard.is_pressed('esc') or self._exit_scan:  # if key 'esc' is pressed
                     self._exit_scan = False
@@ -62,7 +73,8 @@ class FrameTaker:
                     self._pipeline.stop()
                     return
 
-                cv2.circle(color_image, (int(color_image.shape[1] / 2), int(color_image.shape[0] / 2)), 2, (0, 0, 255), -1)
+                cv2.circle(color_image, (int(color_image.shape[1] / 2), int(color_image.shape[0] / 2)), 2, (0, 0, 255),
+                           -1)
                 cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
                 self._last_image = color_image
                 self._last_depth_image = depth_image

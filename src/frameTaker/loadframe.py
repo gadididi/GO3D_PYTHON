@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import pyrealsense2 as rs
 
 from src.frameTaker import outliersremoval
 
@@ -22,10 +23,29 @@ def load_frame(frame_name, frame_number):
     depth_image = np.loadtxt(f"{frame_name}_depth_{frame_number}.txt", dtype=float).T
     accel_image = np.loadtxt(f"{frame_name}_accel_{frame_number}.txt", dtype=float)
     gyro_image = np.loadtxt(f"{frame_name}_gyro_{frame_number}.txt", dtype=float)
+    intrin_image = load_intrin(frame_name, frame_number)
 
-    return depth_image, accel_image, gyro_image
+    return depth_image, accel_image, gyro_image, intrin_image
 
 
 def load_frame_and_remove_depth_outliers(frame_name):
     depth_image = np.loadtxt(f"{frame_name}_depth.txt", dtype=float).T
     outliersremoval.remove_outliers_by_depth(depth_image, 0.1)
+
+
+def load_intrin(frame_name, frame_number):
+    intrin = rs.intrinsics()
+
+    fp = open(f"{frame_name}_intrin_{frame_number}.txt", 'r')
+    intrin.coeffs = list(map(float, fp.readline().strip("[]\n").split(",")))
+    intrin.fy = float(fp.readline())
+    intrin.fx = float(fp.readline())
+    intrin.ppx = float(fp.readline())
+    intrin.ppy = float(fp.readline())
+    intrin.height = int(fp.readline())
+    intrin.width = int(fp.readline())
+    intrin.model = rs.distortion.inverse_brown_conrady
+
+    return intrin
+
+
