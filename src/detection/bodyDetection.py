@@ -64,6 +64,7 @@ class HumanPartSegmentationDetector:
         shoulders = self.find_shoulders_point(body_points, segmentation_image)
         if shoulders is not None:
             body_parts['shoulders'] = shoulders
+        return shoulders
 
     def find_arms_points(self):
         ...
@@ -78,7 +79,7 @@ class HumanPartSegmentationDetector:
             l_tmp = np.where(line_shoulder == self.body_part_seg['shoulder_line_class'])
             left_s_new = l_tmp[0].min()
             right_s_new = l_tmp[0].max()
-            return left_s_new, right_s_new
+            return (left_s_new, left_s[1]), (right_s_new, right_s[1])
 
     def draw_skeleton(self, points, frameCopy, frame):
         # Draw Skeleton
@@ -141,4 +142,4 @@ class HumanPartSegmentationDetector:
         # if you want to see the skeleton body remove the comment below
         self.draw_skeleton(points, frameCopy, frame)
         segmentation_image = self.detect(frame)
-        self.find_body_part(body_points, segmentation_image)
+        return self.find_body_part(body_points, segmentation_image)
