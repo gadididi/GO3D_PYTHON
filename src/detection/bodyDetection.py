@@ -13,13 +13,14 @@ class HumanPartSegmentationDetector:
         self.__size_of_img = 256
         self.__num_of_class = 7
         self.__caffe_model_net = cv2.dnn.readNetFromCaffe(cfg_caffe_path, caffe_path_model)
-        self.__threshold = 0.2
+        self.__threshold = 0.1
         self.__nPoints = 15
         self.POSE_PAIRS = [[0, 1], [1, 2], [2, 3], [3, 4], [1, 5], [5, 6], [6, 7], [1, 14], [14, 8], [8, 9], [9, 10],
                            [14, 11],
                            [11, 12], [12, 13]]
 
-        self.body_parts = {'left_shoulder': 2, 'right_shoulder': 5}
+        self.body_parts_caffe = {'left_shoulder': 2, 'right_shoulder': 5}
+        self.body_part_seg = {'shoulder_line_class': 4}
 
     def detect(self, orig_img):
         # scale the img to 256*256*3 input for neural network
@@ -41,6 +42,9 @@ class HumanPartSegmentationDetector:
         seg_img = seg_img[:, :, np.newaxis]
         seg_img = np.array(seg_img, dtype='uint8')
         seg_img = cv2.resize(seg_img, (640, 480))
+
+        # For show seg image remove the comment below
+
         plt.figure(1)
         plt.imshow(seg_img)
         plt.show(block=False)
@@ -56,16 +60,25 @@ class HumanPartSegmentationDetector:
         :return:
         """
         print("start the measuring....")
-        self.find_shoulders_point(body_points, segmentation_image)
+        body_parts = {}
+        shoulders = self.find_shoulders_point(body_points, segmentation_image)
+        if shoulders is not None:
+            body_parts['shoulders'] = shoulders
+
+    def find_arms_points(self):
+        ...
 
     def find_shoulders_point(self, body_points, segmentation_image):
-        if self.body_parts['left_shoulder'] in body_points and self.body_parts['right_shoulder']:
-            left_s = body_points[self.body_parts['left_shoulder']]
-            right_s = body_points[self.body_parts['right_shoulder']]
-            print("hhh")
-
-
-
+        if self.body_parts_caffe['left_shoulder'] in body_points and self.body_parts_caffe['right_shoulder']:
+            left_s = body_points[self.body_parts_caffe['left_shoulder']]
+            right_s = body_points[self.body_parts_caffe['right_shoulder']]
+            # TODO- CHECK IF THE LEFT_s OR RIGHT_S ON 0 CLASS RETURN FAILURE
+            # TODO- check the differance between left height and right height!!! greater than X return False
+            line_shoulder = segmentation_image[left_s[1]]
+            l_tmp = np.where(line_shoulder == self.body_part_seg['shoulder_line_class'])
+            left_s_new = l_tmp[0].min()
+            right_s_new = l_tmp[0].max()
+            return left_s_new, right_s_new
 
     def draw_skeleton(self, points, frameCopy, frame):
         # Draw Skeleton
@@ -132,6 +145,3 @@ class HumanPartSegmentationDetector:
         self.find_body_part(body_points, segmentation_image)
 
 
-d = HumanPartSegmentationDetector("./models/enet256_weight0501.hdf5", "./models/pose_iter_440000.caffemodel",
-                                  "./models/pose_deploy_linevec.prototxt")
-d.find_body_points("./images/2.jpg")
