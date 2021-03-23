@@ -45,11 +45,6 @@ class FrameTaker:
                 color_frame = aligned_frames.get_color_frame()
                 depth_frame = aligned_frames.get_depth_frame()
 
-                color_intrin = color_frame.profile.as_video_stream_profile().intrinsics
-
-                accel_frame = accel_data(frames[2].as_motion_frame().get_motion_data())
-                gyro_frame = gyro_data(frames[3].as_motion_frame().get_motion_data())
-
                 if not depth_frame or not color_frame:
                     continue
 
@@ -58,12 +53,10 @@ class FrameTaker:
 
                 color_image = np.asanyarray(color_frame.get_data())
                 depth_image = np.asanyarray(depth_frame.get_data())
-                accel_data_image = np.asanyarray(accel_frame)
-                gyro_data_image = np.asanyarray(gyro_frame)
 
                 if keyboard.is_pressed('p') or self._take_snapshot:  # if key 'p' is pressed
                     self._take_snapshot = False
-                    self._frames_cache.append([depth_frame, accel_data_image, gyro_data_image, color_intrin])
+                    self._frames_cache.append([depth_frame, color_intrin, color_image])
                     self._frame_count += 1
                     time.sleep(0.5)
                     print("picture taken")

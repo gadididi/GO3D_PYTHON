@@ -3,6 +3,7 @@ import numpy as np
 import pyrealsense2 as rs
 
 from src.frameTaker import outliersremoval
+from src.sqlConnector.sqlconnector import SQLConnector
 
 
 def load_frame_and_show(frame_name):
@@ -19,13 +20,15 @@ def load_frame_and_show(frame_name):
     cv2.waitKey()
 
 
-def load_frame(frame_name, frame_number):
-    depth_image = np.loadtxt(f"{frame_name}_depth_{frame_number}.txt", dtype=float).T
-    accel_image = np.loadtxt(f"{frame_name}_accel_{frame_number}.txt", dtype=float)
-    gyro_image = np.loadtxt(f"{frame_name}_gyro_{frame_number}.txt", dtype=float)
-    intrin_image = load_intrin(frame_name, frame_number)
+def load_frame(scan_name, frame_number):
+    sql_connection = SQLConnector()
+    frame = sql_connection.load_only_one_frame(scan_name, frame_number)[0]
+    depth_image = np.loadtxt(frame[2], dtype=float).T
+    intrin_image = load_intrin(frame[3])
+    color_image = frame[4]
+    sql_connection.close()
 
-    return depth_image, accel_image, gyro_image, intrin_image
+    return depth_image, color_image, intrin_image
 
 
 def load_frame_and_remove_depth_outliers(frame_name):
@@ -33,10 +36,10 @@ def load_frame_and_remove_depth_outliers(frame_name):
     outliersremoval.remove_outliers_by_depth(depth_image, 0.1)
 
 
-def load_intrin(frame_name, frame_number):
+def load_intrin(frame_name):
     intrin = rs.intrinsics()
 
-    fp = open(f"{frame_name}_intrin_{frame_number}.txt", 'r')
+    fp = open(frame_name, 'r')
     intrin.coeffs = list(map(float, fp.readline().strip("[]\n").split(",")))
     intrin.fy = float(fp.readline())
     intrin.fx = float(fp.readline())
