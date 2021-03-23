@@ -53,6 +53,7 @@ def sql_lite_test():
     connector.save_scan("test1", "path1", "path2", 1)
     connector.save_scan("test1", "path1", "path2", 2)
     val = connector.load_scan_by_name("test1")
+    connector.close()
     print(val)
 
 

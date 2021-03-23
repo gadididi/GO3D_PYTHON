@@ -85,6 +85,15 @@ class FrameTaker:
 
     def exit_scan(self):
         self._exit_scan = True
+        self.reset_cache()
+
+    def reset_cache(self):
+        self._frame_count = 0
+        self._frames_cache = []
+        self._take_snapshot = False
+        self._exit_scan = False
+        self._last_image = None
+        self._last_depth_image = None
 
     def get_last_image(self):
         return self._last_image
