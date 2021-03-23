@@ -95,9 +95,8 @@ class HumanPartSegmentationDetector:
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
-    # TODO: CHANGE X TO ND-ARRAY
-    def find_body_points(self, x):
-        frame = cv2.imread(x)
+    def find_body_points(self, path):
+        frame = cv2.imread(path)
         frameCopy = np.copy(frame)
         frameWidth = frame.shape[1]
         frameHeight = frame.shape[0]
@@ -143,5 +142,3 @@ class HumanPartSegmentationDetector:
         self.draw_skeleton(points, frameCopy, frame)
         segmentation_image = self.detect(frame)
         self.find_body_part(body_points, segmentation_image)
-
-
