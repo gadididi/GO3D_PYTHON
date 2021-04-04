@@ -19,8 +19,11 @@ class HumanPartSegmentationDetector:
                            [14, 11],
                            [11, 12], [12, 13]]
 
-        self.body_parts_caffe = {'left_shoulder': 2, 'right_shoulder': 5}
-        self.body_part_seg = {'shoulder_line_class': 4}
+        self.body_parts_caffe = {'left_shoulder': 2, 'right_shoulder': 5, 'right_abdomen': 11, 'left_abdomen': 8,
+                                 'left_elbow': 3, 'right_elbow': 6, 'left_arm': 4, 'right_arm': 7,
+                                 'left_knee': 9, 'right_knee': 12, 'chest_center': 1, 'left_ankle': 10,
+                                 'right_ankle': 13, 'head': 0}
+        self.body_part_seg = {'shoulder_line_class': 4, 'abdomen_line_class': 5}
 
     def detect(self, orig_img):
         # scale the img to 256*256*3 input for neural network
@@ -62,24 +65,87 @@ class HumanPartSegmentationDetector:
         print("start the measuring....")
         body_parts = {}
         shoulders = self.find_shoulders_point(body_points, segmentation_image)
+        abdomen = self.find_abdomen_point(body_points, segmentation_image)
+        chest = self.find_chest_point(body_points)
+        knees = self.find_knee_point(body_points)
+        arms = self.find_arms_point(body_points)
+        elbows = self.find_elbow_point(body_points)
+        ankles = self.find_ankle_point(body_points)
+        head = self.find_head_point(body_points)
+
         if shoulders is not None:
             body_parts['shoulders'] = shoulders
-        return shoulders
 
-    def find_arms_points(self):
-        ...
+        if abdomen is not None:
+            body_parts['abdomen'] = abdomen
+
+        if chest is not None:
+            body_parts['chest'] = chest
+
+        if knees is not None:
+            body_parts['knees'] = knees
+
+        if arms is not None:
+            body_parts['arms'] = arms
+
+        if elbows is not None:
+            body_parts['elbows'] = elbows
+
+        if ankles is not None:
+            body_parts['ankles'] = ankles
+
+        if head is not None:
+            body_parts['head'] = head
+
+        return body_parts
+
+    def find_ankle_point(self, body_points):
+        if self.body_parts_caffe['left_ankle'] in body_points and self.body_parts_caffe['right_ankle'] in body_points:
+            left_ankle = body_points[self.body_parts_caffe['left_ankle']]
+            right_ankle = body_points[self.body_parts_caffe['right_ankle']]
+            return left_ankle, right_ankle
+
+    def find_knee_point(self, body_points):
+        if self.body_parts_caffe['left_knee'] in body_points and self.body_parts_caffe['right_knee'] in body_points:
+            left_knee = body_points[self.body_parts_caffe['left_knee']]
+            right_knee = body_points[self.body_parts_caffe['right_knee']]
+            return left_knee, right_knee
+
+    def find_elbow_point(self, body_points):
+        if self.body_parts_caffe['left_elbow'] in body_points and self.body_parts_caffe['right_elbow'] in body_points:
+            left_elbow = body_points[self.body_parts_caffe['left_elbow']]
+            right_elbow = body_points[self.body_parts_caffe['right_elbow']]
+            return left_elbow, right_elbow
+
+    def find_arms_point(self, body_points):
+        if self.body_parts_caffe['left_arm'] in body_points and self.body_parts_caffe['right_arm'] in body_points:
+            left_arm = body_points[self.body_parts_caffe['left_arm']]
+            right_arm = body_points[self.body_parts_caffe['right_arm']]
+            return left_arm, right_arm
+
+    def find_chest_point(self, body_points):
+        if self.body_parts_caffe['chest_center'] in body_points:
+            return body_points[self.body_parts_caffe['chest_center']]
+
+    def find_head_point(self, body_points):
+        if self.body_parts_caffe['head'] in body_points:
+            return body_points[self.body_parts_caffe['head']]
 
     def find_shoulders_point(self, body_points, segmentation_image):
-        if self.body_parts_caffe['left_shoulder'] in body_points and self.body_parts_caffe['right_shoulder']:
+        if self.body_parts_caffe['left_shoulder'] in body_points and self.body_parts_caffe['right_shoulder'] in body_points:
             left_s = body_points[self.body_parts_caffe['left_shoulder']]
             right_s = body_points[self.body_parts_caffe['right_shoulder']]
-            # TODO- CHECK IF THE LEFT_s OR RIGHT_S ON 0 CLASS RETURN FAILURE
-            # TODO- check the differance between left height and right height!!! greater than X return False
             line_shoulder = segmentation_image[left_s[1]]
             l_tmp = np.where(line_shoulder == self.body_part_seg['shoulder_line_class'])
             left_s_new = l_tmp[0].min()
             right_s_new = l_tmp[0].max()
             return (left_s_new, left_s[1]), (right_s_new, right_s[1])
+
+    def find_abdomen_point(self, body_points, segmentation_image):
+        if self.body_parts_caffe['left_abdomen'] in body_points and self.body_parts_caffe['right_abdomen'] in body_points:
+            left_ab = body_points[self.body_parts_caffe['left_abdomen']]
+            right_ab = body_points[self.body_parts_caffe['right_abdomen']]
+            return left_ab, right_ab
 
     def draw_skeleton(self, points, frameCopy, frame):
         # Draw Skeleton
@@ -140,6 +206,6 @@ class HumanPartSegmentationDetector:
                 points.append(None)
 
         # if you want to see the skeleton body remove the comment below
-        self.draw_skeleton(points, frameCopy, frame)
+        # self.draw_skeleton(points, frameCopy, frame)
         segmentation_image = self.detect(frame)
         return self.find_body_part(body_points, segmentation_image)

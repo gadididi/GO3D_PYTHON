@@ -14,12 +14,12 @@ def remove_outliers_by_depth(depth_image, depth_threshold):
 
 
 def remove_outliers_by_depth_and_return_image(depth_image, depth_threshold):
-    center_row, center_col = get_image_center(depth_image)
-    center_depth = depth_image[center_row][center_col]
-    for row in range(depth_image.shape[0]):
-        for col in range(depth_image.shape[1]):
-            if compare_depths_delta(depth_image[row][col], center_depth) > depth_threshold:
-                depth_image[row][col] = 10000
+    center_col, center_row = get_image_center(depth_image)
+    center_depth = depth_image[center_col][center_row]
+    for col in range(depth_image.shape[0]):
+        for row in range(depth_image.shape[1]):
+            if compare_depths_delta(depth_image[col][row], center_depth) > depth_threshold:
+                depth_image[col][row] = 10000
 
     return depth_image
 
