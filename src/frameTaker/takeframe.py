@@ -5,8 +5,7 @@ import numpy as np
 import cv2
 import keyboard
 
-ROWS = 640
-COLS = 480
+from src.infra import config
 
 
 def gyro_data(gyro):
@@ -19,11 +18,14 @@ def accel_data(accel):
 
 class FrameTaker:
     def __init__(self):
+        self._rows = config.get_integer('OPTIONS', 'frame.rows')
+        self._cols = config.get_integer('OPTIONS', 'frame.cols')
+
         self._frame_count = 0
         self._pipeline = rs.pipeline()
         self._config = rs.config()
-        self._config.enable_stream(rs.stream.depth, ROWS, COLS, rs.format.z16, 30)
-        self._config.enable_stream(rs.stream.color, ROWS, COLS, rs.format.bgr8, 30)
+        self._config.enable_stream(rs.stream.depth, self._rows, self._cols, rs.format.z16, 30)
+        self._config.enable_stream(rs.stream.color, self._rows, self._cols, rs.format.bgr8, 30)
         self._config.enable_stream(rs.stream.accel, rs.format.motion_xyz32f, 200)
         self._config.enable_stream(rs.stream.gyro, rs.format.motion_xyz32f, 200)
         self._frames_cache = []
@@ -66,12 +68,15 @@ class FrameTaker:
                     self._pipeline.stop()
                     return
 
-                cv2.circle(color_image, (int(color_image.shape[1] / 2), int(color_image.shape[0] / 2)), 2, (0, 0, 255),
-                           -1)
                 cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
-                self._last_image = color_image
+                depth_map_show = None
+                depth_map_show = cv2.normalize(depth_image, depth_map_show, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
+                depth_map_show = cv2.applyColorMap(depth_map_show, cv2.COLORMAP_COOL)
+                cv2.circle(depth_map_show, (int(depth_map_show.shape[1] / 2), int(depth_map_show.shape[0] / 2)), 2, (0, 0, 255),
+                           -1)
+                self._last_image = depth_map_show
                 self._last_depth_image = depth_image
-                cv2.imshow('RealSense', color_image)
+                cv2.imshow('RealSense', depth_map_show)
                 cv2.waitKey(1)
 
         except IOError as e:
