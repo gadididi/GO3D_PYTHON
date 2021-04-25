@@ -18,8 +18,8 @@ def accel_data(accel):
 
 class FrameTaker:
     def __init__(self):
-        self._rows = config.get_integer('OPTIONS', 'frame.rows')
-        self._cols = config.get_integer('OPTIONS', 'frame.cols')
+        self._cols = config.get_integer('LIDAR', 'lidar.cols')
+        self._rows = config.get_integer('LIDAR', 'lidar.rows')
 
         self._frame_count = 0
         self._pipeline = rs.pipeline()

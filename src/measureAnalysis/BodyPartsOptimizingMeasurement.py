@@ -1,28 +1,77 @@
 from src.frameTaker.distancecalculator import measure_distance
 from src.frameTaker.outliersremoval import remove_outliers_by_depth_and_return_image
+from src.infra import config
+import math
 
 
 def check_if_point_inside_the_frame(point):
-    if 1 < point[0] < 478:
-        if 1 < point[1] < 638:
+    if 1 < point[0] < config.get_integer('OPTIONS', 'frame.cols'):
+        if 1 < point[1] < config.get_integer('OPTIONS', 'frame.rows'):
             return True
     return False
 
 
 class BodyPartsMeasurementOptimizer:
     def __init__(self, depth_frame):
-        self._optimized_depth_frame = remove_outliers_by_depth_and_return_image(depth_frame, 0.2)
+        self._optimized_depth_frame = remove_outliers_by_depth_and_return_image(depth_frame, 0.5)
 
-    def find_height(self, right_ankle, left_ankle, head, intrin):
-        distance_to_right_ankle = measure_distance(head, right_ankle, self._optimized_depth_frame, intrin)
-        distance_to_left_ankle = measure_distance(head, left_ankle, self._optimized_depth_frame, intrin)
+    def find_height_version_2(self, head, right_ankle, intrin):
+        right_foot = self.find_foot(right_ankle)
+        right_foot_point_cols = right_foot[0]
+        right_foot_point_rows = right_foot[1]
+
+        line_from_right_foot_rows = right_foot_point_rows
+        depth = self._optimized_depth_frame[line_from_right_foot_rows, right_foot_point_cols]
+        while depth < 1000 and line_from_right_foot_rows > 1:
+            depth = self._optimized_depth_frame[line_from_right_foot_rows - 1, right_foot_point_cols]
+            if depth < 1000:
+                line_from_right_foot_rows = line_from_right_foot_rows - 1
+
+        head_point_cols = head[0]
+        from_head = measure_distance(head, (head_point_cols, line_from_right_foot_rows), self._optimized_depth_frame,
+                                     intrin)
+        from_leg = measure_distance(right_foot, (right_foot_point_cols, line_from_right_foot_rows),
+                                    self._optimized_depth_frame, intrin)
 
         print("distances:")
-        print(distance_to_right_ankle)
-        print(distance_to_left_ankle)
+        print(from_head)
+        print(from_leg)
+        print(from_leg + from_head)
+
+    def find_height(self, right_ankle, left_ankle, head, intrin):
+
+        right_foot = self.find_foot(right_ankle)
+        left_foot = self.find_foot(left_ankle)
+
+        distance_to_right_foot = measure_distance(head, right_foot, self._optimized_depth_frame, intrin)
+        distance_to_left_foot = measure_distance(head, left_foot, self._optimized_depth_frame, intrin)
+        distance_between_feet = measure_distance(right_foot, left_foot, self._optimized_depth_frame, intrin)
+
+        cos_alpha = (pow(distance_between_feet, 2) - pow(distance_to_left_foot, 2) - pow(distance_to_right_foot, 2)) / (
+                2 * distance_to_left_foot * distance_to_right_foot)
+        alpha = math.acos(cos_alpha)
+
+        height = distance_to_right_foot * math.sin(alpha)
+
+        print("distances:")
+        print(height)
+        print(height)
 
         print("average:")
-        print((distance_to_left_ankle + distance_to_right_ankle) / 2)
+        print((distance_to_left_foot + distance_to_right_foot) / 2)
+
+    def find_foot(self, ankle):
+        ankle_point_cols = ankle[0]
+        ankle_point_rows = ankle[1]
+
+        # bottom ankle border
+        bottom_ankle_border = ankle_point_rows
+        depth = self._optimized_depth_frame[bottom_ankle_border, ankle_point_cols]
+        while depth < 1000 and bottom_ankle_border < config.get_integer('OPTIONS', 'frame.rows') - 1:
+            depth = self._optimized_depth_frame[bottom_ankle_border + 1, ankle_point_cols]
+            if depth < 1000:
+                bottom_ankle_border = bottom_ankle_border + 1
+        return ankle_point_cols, bottom_ankle_border
 
     def optimize_head_position(self, head_point):
         new_head_point_cols = head_point[0]
@@ -54,7 +103,24 @@ class BodyPartsMeasurementOptimizer:
             if depth < 1000:
                 head_top_border = head_top_border - 1
 
-        return new_head_point_cols, head_top_border
+        return self.advanced_head_optimization((new_head_point_cols, head_top_border))
+
+    def advanced_head_optimization(self, head):
+        new_head_point_cols = head[0]
+        new_head_point_rows = head[1]
+
+        has_reached_the_top = False
+
+        while not has_reached_the_top:
+            for i in range(-10, 10):
+                if check_if_point_inside_the_frame((new_head_point_cols + i, new_head_point_rows - 1)):
+                    if self._optimized_depth_frame[new_head_point_rows - 1, new_head_point_cols + i] < 1000:
+                        new_head_point_rows = new_head_point_rows - 1
+                        new_head_point_cols = new_head_point_cols + i
+                        break
+                has_reached_the_top = True
+
+        return new_head_point_cols, new_head_point_rows
 
     def optimize_shoulders_position(self, point1, point2):
         average_height = round((point1[1] + point2[1]) / 2)
