@@ -33,9 +33,11 @@ class FrameTaker:
         self._exit_scan = False
         self._last_image = None
         self._last_depth_image = None
+        self._healthy = True
 
     def start_stream(self):
         # Start streaming
+        self._healthy = True
         self._pipeline.start(self._config)
         align_to = rs.stream.color
         align = rs.align(align_to)
@@ -81,6 +83,10 @@ class FrameTaker:
 
         except IOError as e:
             print(e)
+            self._healthy = False
+        except RuntimeError as e:
+            print(e)
+            self._healthy = False
 
     def get_frame_cache(self):
         return self._frames_cache
@@ -104,3 +110,6 @@ class FrameTaker:
 
     def get_last_depth_image(self):
         return self._last_depth_image
+
+    def is_healthy(self):
+        return self.is_healthy()

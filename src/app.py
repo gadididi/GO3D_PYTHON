@@ -49,45 +49,59 @@ def start_scan():
     try:
         flow_manager.start_scan_stream()
         return {'connected': False}
-    except Exception:
+    except RuntimeError:
         return {'connected': False}
 
 
 @app.route('/scan/get_camera_stream', methods=['GET'])
 def get_camera_stream():
-    # Capture frame-by-frame
-    image = flow_manager.get_last_image()
-    if image is None:
+    try:
+        # Capture frame-by-frame
+        image = flow_manager.get_last_image()
+        if image is None:
+            return {'image': False}
+        retval, buffer = cv2.imencode('.jpg', image)
+        jpg_as_text = base64.b64encode(buffer)
+        return {'image': str(jpg_as_text)}
+    except RuntimeError:
         return {'image': False}
-    retval, buffer = cv2.imencode('.jpg', image)
-    jpg_as_text = base64.b64encode(buffer)
-    return {'image': str(jpg_as_text)}
 
 
 @app.route('/scan/take_snapshot', methods=['POST', 'GET'])
 def take_snapshot_during_scan():
-    flow_manager.take_snapshot()
-    flow_manager.get_last_image()
-    return {'snapshot': True}
+    try:
+        flow_manager.take_snapshot()
+        return {'snapshot': True}
+    except RuntimeError:
+        return {'snapshot': False}
 
 
 @app.route('/scan/save_scan/<scan_name>', methods=['POST', 'GET'])
 def save_scan(scan_name):
-    flow_manager.get_and_save_scan_saved_frames(scan_name)
-    return {'save_scan': True}
+    try:
+        flow_manager.get_and_save_scan_saved_frames(scan_name)
+        return {'save_scan': True}
+    except RuntimeError:
+        return {'save_scan': False}
 
 
 @app.route('/scan/restart_scan', methods=['GET'])
 def restart_scan():
-    flow_manager.exit_scan()
-    flow_manager.start_scan_stream()
-    return {'restart_scan': True}
+    try:
+        flow_manager.exit_scan()
+        flow_manager.start_scan_stream()
+        return {'restart_scan': True}
+    except RuntimeError:
+        return {'save_scan': False}
 
 
 @app.route('/scan/cancel_scan', methods=['GET'])
 def cancel_scan():
-    flow_manager.exit_scan()
-    return {'cancel_scan': True}
+    try:
+        flow_manager.exit_scan()
+        return {'cancel_scan': True}
+    except RuntimeError:
+        return {'cancel_scan': False}
 
 
 @app.route('/delete_all_scans', methods=['POST'])

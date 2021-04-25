@@ -20,6 +20,7 @@ class FrameProcessor:
         self._calculated_left_shoulder_to_elbow = 0
         self._calculated_right_thigh = 0
         self._calculated_left_thigh = 0
+        self._calculated_BMI_score = 0
 
     def start_processing(self):
         human_part_detector = self._ml_config.get_human_parts_detector()
@@ -78,3 +79,9 @@ class FrameProcessor:
                          'right_shoulder_to_elbow': self._calculated_right_shoulder_to_elbow,
                          'left_shoulder_to_elbow': self._calculated_left_shoulder_to_elbow,
                          'right_thigh': self._calculated_left_thigh}
+
+    def calculate_BMI(self, weight):
+        if self._calculated_height < 0:
+            raise ValueError("Error: couldn't calculate BMI before calculating height")
+        else:
+            self._calculated_BMI_score = weight / (pow(self._calculated_height, 2))
