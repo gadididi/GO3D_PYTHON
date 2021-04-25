@@ -1,6 +1,7 @@
 from src.frameTaker.distancecalculator import measure_distance
 from src.frameTaker.loadframe import load_frame
 from src.measureAnalysis.BodyPartsOptimizingMeasurement import BodyPartsMeasurementOptimizer
+from src.sqlConnector.sqlconnector import SQLConnector
 
 
 class FrameProcessor:
@@ -78,10 +79,15 @@ class FrameProcessor:
                          'shoulders': self._calculated_shoulder_length,
                          'right_shoulder_to_elbow': self._calculated_right_shoulder_to_elbow,
                          'left_shoulder_to_elbow': self._calculated_left_shoulder_to_elbow,
-                         'right_thigh': self._calculated_left_thigh}
+                         'right_thigh': self._calculated_right_thigh, 'left_thigh': self._calculated_left_thigh}
 
     def calculate_BMI(self, weight):
         if self._calculated_height < 0:
             raise ValueError("Error: couldn't calculate BMI before calculating height")
         else:
             self._calculated_BMI_score = weight / (pow(self._calculated_height, 2))
+            self._results['bmi_score'] = self._calculated_BMI_score
+
+    def save_process_results(self):
+        sql_connector = SQLConnector()
+        sql_connector.save_scan_results(self._frame_name, self._results)

@@ -21,7 +21,7 @@ class SQLConnector:
         self._cursor = self._conn.cursor()
 
     def init_tables(self):
-        sql_create_projects_table = """ CREATE TABLE IF NOT EXISTS scans (
+        sql_create_scans_table = """ CREATE TABLE IF NOT EXISTS scans (
                                             scan_name text,
                                             frame integer,
                                             depth_matrix_location text,
@@ -29,7 +29,22 @@ class SQLConnector:
                                             image_location text, 
                                             PRIMARY KEY (scan_name, frame)
                                         ); """
-        self._cursor.execute(sql_create_projects_table)
+        self._cursor.execute(sql_create_scans_table)
+        self._conn.commit()
+
+        sql_create_results_table = """ CREATE TABLE IF NOT EXISTS results (
+                                            scan_name text,
+                                            body_height float,
+                                            shoulders float,
+                                            abdomen, float,
+                                            right_thigh float,
+                                            left_thigh float,
+                                            right_shoulder_to_elbow float,
+                                            left_shoulder_to_elbow float,
+                                            bmi_score float,
+                                            PRIMARY KEY (scan_name)
+                                        ); """
+        self._cursor.execute(sql_create_results_table)
         self._conn.commit()
         return self
 
@@ -82,6 +97,36 @@ class SQLConnector:
         self._cursor.execute(query_string)
         retVal = self._cursor.fetchall()
         return retVal
+
+    def save_scan_results(self, scan_name, results):
+        body_height = results['body_height']
+        shoulders = results['shoulders']
+        abdomen = results['abdomen']
+        right_thigh = results['right_thigh']
+        left_thigh = results['left_thigh']
+        right_shoulder_to_elbow = results['right_shoulder_to_elbow']
+        left_shoulder_to_elbow = results['left_shoulder_to_elbow']
+        bmi_score = results['bmi_score']
+
+        query_string = f"INSERT INTO results (scan_name, body_height, shoulders, abdomen, right_thigh, left_thigh, right_shoulder_to_elbow, " \
+                       f"left_shoulder_to_elbow, bmi_score) " \
+                       f"VALUES ('{scan_name}', {body_height}, {shoulders}, {abdomen}, {right_thigh}, {left_thigh}, " \
+                       f"{right_shoulder_to_elbow}, {left_shoulder_to_elbow}, {bmi_score})"
+        print(query_string)
+        self._cursor.execute(query_string)
+        self._conn.commit()
+        return self
+
+    def get_scan_results_by_name(self, scan_name):
+        query_string = f"SELECT body_height, shoulders, abdomen, right_thigh, left_thigh, right_shoulder_to_elbow, " \
+                       f"left_shoulder_to_elbow, bmi_score FROM results WHERE scan_name = '{scan_name}' limit 1"
+        self._cursor.execute(query_string)
+        retVal = self._cursor.fetchall()[0]
+
+        results = {'body_height': retVal[0], 'shoulders': retVal[1], 'abdomen': retVal[2],
+                   'right_thigh': retVal[3], 'left_thigh': retVal[4], 'right_shoulder_to_elbow': retVal[5],
+                   'left_shoulder_to_elbow': retVal[6], 'bmi_score': retVal[7]}
+        return results
 
     def close(self):
         self._cursor.close()
