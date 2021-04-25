@@ -62,6 +62,8 @@ def sql_lite_test():
 
 if __name__ == '__main__':
     load_configs()
+    SQLConnector().check_if_scan_exists("test_21")
+
     print("config check")
     rows = config.get_integer('OPTIONS', 'frame.rows')
     print(rows)

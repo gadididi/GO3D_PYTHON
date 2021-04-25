@@ -54,6 +54,16 @@ class SQLConnector:
         retVal = self._cursor.fetchall()
         return retVal
 
+    def check_if_scan_exists(self, scan_name):
+        query_string = f"SELECT * FROM scans WHERE scan_name = '{scan_name}' limit 1"
+        self._cursor.execute(query_string)
+        retVal = self._cursor.fetchall()
+
+        if len(retVal) > 0:
+            return True
+        else:
+            return False
+
     def truncate_table(self):
         query_string = f"DROP TABLE scans"
         self._cursor.execute(query_string)

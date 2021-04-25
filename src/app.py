@@ -46,8 +46,11 @@ def settings():
 # ----------------------------------------------- Scanning section ---------------------------------------------
 @app.route('/scan', methods=['GET'])
 def start_scan():
-    flow_manager.start_scan_stream()
-    return {'start': True}
+    try:
+        flow_manager.start_scan_stream()
+        return {'connected': False}
+    except Exception:
+        return {'connected': False}
 
 
 @app.route('/scan/get_camera_stream', methods=['GET'])

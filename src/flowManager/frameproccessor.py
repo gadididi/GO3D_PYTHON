@@ -52,12 +52,12 @@ class FrameProcessor:
         new_head = self._optimizer.optimize_head_position(validated_head)
         new_left_ankle = self._optimizer.optimize_knee_position(validated_left_ankle)
         new_right_ankle = self._optimizer.optimize_knee_position(validated_right_ankle)
-        bottom_leg_right = self._optimizer.validate_and_fix_corrupted_point(
-            self._optimizer.find_lowest_bottom_point(new_right_ankle))
-        bottom_leg_left = self._optimizer.validate_and_fix_corrupted_point(
-            self._optimizer.find_lowest_bottom_point(new_left_ankle))
 
-        self._calculated_height = self._optimizer.find_height(bottom_leg_right, bottom_leg_left, new_head, self._intrin)
+        calculated_height_right = self._optimizer.find_height_version_2(new_head, new_right_ankle, self._intrin)
+        calculated_height_left = self._optimizer.find_height_version_2(new_head, new_left_ankle, self._intrin)
+
+        self._calculated_height = max(calculated_height_left, calculated_height_right)
+
         self._calculated_abdomen_length = measure_distance(new_abdomen[0], new_abdomen[1], self._depth, self._intrin)
         self._calculated_shoulder_length = measure_distance(new_shoulder[0], new_shoulder[1], self._depth, self._intrin)
         self._calculated_right_shoulder_to_elbow = measure_distance(new_shoulder[0], validated_left_elbow, self._depth,
