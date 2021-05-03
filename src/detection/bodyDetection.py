@@ -48,11 +48,11 @@ class HumanPartSegmentationDetector:
 
         # For show seg image remove the comment below
 
-        plt.figure(1)
-        plt.imshow(seg_img)
-        plt.show(block=False)
-        plt.pause(0.05)
-        plt.clf()
+        # plt.figure(1)
+        # plt.imshow(seg_img)
+        # plt.show(block=False)
+        # plt.pause(0.05)
+        # plt.clf()
         return seg_img
 
     def find_body_part(self, body_points, segmentation_image):

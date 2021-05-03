@@ -86,6 +86,7 @@ def take_snapshot_during_scan():
 def save_scan(scan_name):
     try:
         flow_manager.get_and_save_scan_saved_frames(scan_name)
+        print("finish to save")
         return {'save_scan': True}
     except RuntimeError:
         return {'save_scan': False}
@@ -100,10 +101,11 @@ def clear_cache():
         return {'clear_cache': False}
 
 
-@app.route('/scan/process_frame<scan_name>/<weight>', methods=['POST'])
+@app.route('/scan/process_frame/<scan_name>/<int:weight>', methods=['POST'])
 def process_frame(scan_name, weight):
     try:
         results = flow_manager.process_frames(scan_name, weight)
+        print("success process_frame")
         return {'process_frame': True, 'results': results}
     except RuntimeError:
         return {'process_frame': False, 'results': False}
