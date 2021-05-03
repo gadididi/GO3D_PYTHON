@@ -52,3 +52,5 @@ class FlowManager:
     def calculate_BMI(self, weight):
         self._frame_processor.calculate_BMI(weight)
 
+    def clear_cache(self):
+        self._frameTaker.reset_cache()

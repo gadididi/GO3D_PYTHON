@@ -91,6 +91,15 @@ def save_scan(scan_name):
         return {'save_scan': False}
 
 
+@app.route('/scan/clear_cache', methods=['GET'])
+def restart_scan():
+    try:
+        flow_manager.clear_cache()
+        return {'clear_cache': True}
+    except RuntimeError:
+        return {'clear_cache': False}
+
+
 @app.route('/scan/restart_scan', methods=['GET'])
 def restart_scan():
     try:
@@ -98,7 +107,7 @@ def restart_scan():
         flow_manager.start_scan_stream()
         return {'restart_scan': True}
     except RuntimeError:
-        return {'save_scan': False}
+        return {'restart_scan': False}
 
 
 @app.route('/scan/cancel_scan', methods=['GET'])
