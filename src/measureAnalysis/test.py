@@ -67,8 +67,8 @@ if __name__ == '__main__':
     print("config check")
     rows = config.get_integer('OPTIONS', 'frame.rows')
     print(rows)
-    # take_frame("test_21")
-    depth, image, intrin = load_frame("test_21", 2)
+    take_frame("test_28")
+    depth, image, intrin = load_frame("test_28", 2)
     optimizer = BodyPartsMeasurementOptimizer(depth)
     # print(1)
 

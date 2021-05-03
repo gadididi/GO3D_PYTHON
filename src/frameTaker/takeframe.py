@@ -37,7 +37,6 @@ class FrameTaker:
 
     def start_stream(self):
         # Start streaming
-        self._healthy = True
         self._pipeline.start(self._config)
         align_to = rs.stream.color
         align = rs.align(align_to)
@@ -72,12 +71,15 @@ class FrameTaker:
 
                 cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
                 depth_map_show = None
-                depth_map_show = cv2.normalize(depth_image, depth_map_show, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
+                depth_map_show = cv2.normalize(depth_image, depth_map_show, alpha=0, beta=255,
+                                               norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
                 depth_map_show = cv2.applyColorMap(depth_map_show, cv2.COLORMAP_COOL)
-                cv2.circle(depth_map_show, (int(depth_map_show.shape[1] / 2), int(depth_map_show.shape[0] / 2)), 2, (0, 0, 255),
+                cv2.circle(depth_map_show, (int(depth_map_show.shape[1] / 2), int(depth_map_show.shape[0] / 2)), 2,
+                           (0, 0, 255),
                            -1)
                 self._last_image = depth_map_show
                 self._last_depth_image = depth_image
+                self._healthy = True
                 cv2.imshow('RealSense', depth_map_show)
                 cv2.waitKey(1)
 
@@ -101,6 +103,7 @@ class FrameTaker:
     def reset_cache(self):
         self._frame_count = 0
         self._frames_cache = []
+        self._healthy = False
         self._take_snapshot = False
         self._last_image = None
         self._last_depth_image = None
@@ -112,4 +115,4 @@ class FrameTaker:
         return self._last_depth_image
 
     def is_healthy(self):
-        return self.is_healthy()
+        return self._healthy

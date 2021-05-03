@@ -14,6 +14,7 @@ class FlowManager:
         self._frame_processor = None
 
     def start_scan_stream(self):
+        print("start scan")
         if not self._frameTaker.is_healthy():
             th = threading.Thread(target=self._frameTaker.start_stream)
             th.start()
