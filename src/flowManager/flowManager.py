@@ -31,9 +31,10 @@ class FlowManager:
         else:
             raise RuntimeError("The camera connection is not healthy, please check camera L515")
 
-    def process_frames(self, file_name):
+    def process_frames(self, file_name, weight):
         frame_processor = FrameProcessor(file_name, self._ML_config)
         frame_processor.start_processing()
+        frame_processor.calculate_BMI(weight)
         results = frame_processor.get_results()
         return results
 
@@ -48,9 +49,6 @@ class FlowManager:
             return self._frameTaker.get_last_image()
         else:
             raise RuntimeError("The camera connection is not healthy, please check camera L515")
-
-    def calculate_BMI(self, weight):
-        self._frame_processor.calculate_BMI(weight)
 
     def clear_cache(self):
         self._frameTaker.reset_cache()

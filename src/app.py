@@ -91,13 +91,22 @@ def save_scan(scan_name):
         return {'save_scan': False}
 
 
-@app.route('/scan/clear_cache', methods=['GET'])
-def restart_scan():
+@app.route('/scan/clear_cache', methods=['POST'])
+def clear_cache():
     try:
         flow_manager.clear_cache()
         return {'clear_cache': True}
     except RuntimeError:
         return {'clear_cache': False}
+
+
+@app.route('/scan/process_frame<scan_name>/<weight>', methods=['POST'])
+def process_frame(scan_name, weight):
+    try:
+        results = flow_manager.process_frames(scan_name, weight)
+        return {'process_frame': True, 'results': results}
+    except RuntimeError:
+        return {'process_frame': False, 'results': False}
 
 
 @app.route('/scan/restart_scan', methods=['GET'])
@@ -119,13 +128,13 @@ def cancel_scan():
         return {'cancel_scan': False}
 
 
-@app.route('/delete_all_scans', methods=['POST'])
+@app.route('/delete_all_scans', methods=['DELETE'])
 def delete_all_scans():
     SQLConnector().truncate_table().close()
     return {'delete_all_scans': True}
 
 
-@app.route('/delete_scan/<scan_name>', methods=['POST'])
+@app.route('/delete_scan/<scan_name>', methods=['DELETE'])
 def delete_scan(scan_name):
     SQLConnector().delete_scan(scan_name).close()
     return {'delete_scan': True}
