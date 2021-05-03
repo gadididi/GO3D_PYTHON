@@ -66,15 +66,18 @@ class FrameTaker:
                     print("picture taken")
                 if keyboard.is_pressed('esc') or self._exit_scan:  # if key 'esc' is pressed
                     self._exit_scan = False
+                    self._healthy = False
                     print("exiting")
                     self._pipeline.stop()
                     return
 
                 cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
                 depth_map_show = None
-                depth_map_show = cv2.normalize(depth_image, depth_map_show, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
+                depth_map_show = cv2.normalize(depth_image, depth_map_show, alpha=0, beta=255,
+                                               norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
                 depth_map_show = cv2.applyColorMap(depth_map_show, cv2.COLORMAP_COOL)
-                cv2.circle(depth_map_show, (int(depth_map_show.shape[1] / 2), int(depth_map_show.shape[0] / 2)), 2, (0, 0, 255),
+                cv2.circle(depth_map_show, (int(depth_map_show.shape[1] / 2), int(depth_map_show.shape[0] / 2)), 2,
+                           (0, 0, 255),
                            -1)
                 self._last_image = depth_map_show
                 self._last_depth_image = depth_image
@@ -112,4 +115,4 @@ class FrameTaker:
         return self._last_depth_image
 
     def is_healthy(self):
-        return self.is_healthy()
+        return self.is_healthy

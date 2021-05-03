@@ -49,7 +49,8 @@ def start_scan():
     try:
         flow_manager.start_scan_stream()
         return {'connected': True}
-    except RuntimeError:
+    except RuntimeError as e:
+        print(e)
         return {'connected': False}
 
 
