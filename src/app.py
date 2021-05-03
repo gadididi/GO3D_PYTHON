@@ -71,9 +71,14 @@ def get_camera_stream():
 def take_snapshot_during_scan():
     try:
         flow_manager.take_snapshot()
-        return {'snapshot': True}
+        image = flow_manager.get_last_image()
+        if image is None:
+            return {'snapshot': False, 'image': False}
+        retval, buffer = cv2.imencode('.jpg', image)
+        jpg_as_text = base64.b64encode(buffer)
+        return {'snapshot': True, 'image': str(jpg_as_text)}
     except RuntimeError:
-        return {'snapshot': False}
+        return {'snapshot': False, 'image': False}
 
 
 @app.route('/scan/save_scan/<scan_name>', methods=['POST', 'GET'])
