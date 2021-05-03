@@ -4,6 +4,7 @@ from flask import Flask, render_template
 from flask_cors import CORS
 
 from src.flowManager.flowManager import FlowManager
+from src.infra import config
 from src.sqlConnector.sqlconnector import SQLConnector
 
 app = Flask(__name__)
@@ -38,9 +39,14 @@ def download_scan_files(scan_id):
 
 
 # ----------------------------------------------- Settings section ---------------------------------------------
-@app.route('/settings', methods=['GET'])
-def settings():
-    print("settings")
+@app.route('/settings/render_distance/<render_distance>', methods=['POST'])
+def settings(render_distance):
+    try:
+        config.set_value("LIDAR", "lidar.render.distance", render_distance)
+        return {'render_distance': True}
+    except RuntimeError as e:
+        print(e)
+        return {'render_distance': False}
 
 
 # ----------------------------------------------- Scanning section ---------------------------------------------

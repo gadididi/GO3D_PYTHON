@@ -13,7 +13,7 @@ def check_if_point_inside_the_frame(point):
 
 class BodyPartsMeasurementOptimizer:
     def __init__(self, depth_frame):
-        self._optimized_depth_frame = remove_outliers_by_depth_and_return_image(depth_frame, 0.5)
+        self._optimized_depth_frame = remove_outliers_by_depth_and_return_image(depth_frame, config.get_integer('LIDAR', "lidar.render.distance"))
 
     def find_height_version_2(self, head, right_ankle, intrin):
         right_foot = self.find_foot(right_ankle)
