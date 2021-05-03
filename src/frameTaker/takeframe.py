@@ -68,6 +68,7 @@ class FrameTaker:
                     self._exit_scan = False
                     print("exiting")
                     self._pipeline.stop()
+                    self._healthy = False
                     return
 
                 cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
