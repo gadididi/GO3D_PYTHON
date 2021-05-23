@@ -87,6 +87,7 @@ class FrameProcessor:
         else:
             self._calculated_BMI_score = weight / (pow(self._calculated_height, 2))
             self._results['bmi_score'] = self._calculated_BMI_score
+            self._results['weight'] = weight
 
     def save_process_results(self):
         sql_connector = SQLConnector()

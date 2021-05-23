@@ -5,7 +5,7 @@ import numpy as np
 from src.frameTaker.takeframe import accel_data, gyro_data
 
 
-def start_test():
+def run_all_tests():
     test_score = 0
     test_cases = 0
 
