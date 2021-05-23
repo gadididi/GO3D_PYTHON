@@ -75,7 +75,7 @@ class FrameProcessor:
         return self._results
 
     def generate_results(self):
-        self._results = {'height': self._calculated_height, 'abdomen': self._calculated_abdomen_length,
+        self._results = {'body_height': self._calculated_height, 'abdomen': self._calculated_abdomen_length,
                          'shoulders': self._calculated_shoulder_length,
                          'right_shoulder_to_elbow': self._calculated_right_shoulder_to_elbow,
                          'left_shoulder_to_elbow': self._calculated_left_shoulder_to_elbow,

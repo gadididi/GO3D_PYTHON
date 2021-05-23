@@ -8,7 +8,7 @@ from src.infra import config
 from src.sqlConnector.sqlconnector import SQLConnector
 
 app = Flask(__name__)
-sql_connector = SQLConnector()
+sql_connector = SQLConnector().init_tables()
 flow_manager = FlowManager()
 CORS(app)
 
