@@ -57,7 +57,7 @@ class FrameTaker:
                 color_image = np.asanyarray(color_frame.get_data())
                 depth_image = np.asanyarray(depth_frame.get_data())
 
-                if keyboard.is_pressed('p') or self._take_snapshot:  # if key 'p' is pressed
+                if self._take_snapshot:
                     self._take_snapshot = False
                     self._frames_cache.append([depth_frame, color_intrin, color_image])
                     self._frame_count += 1
@@ -69,7 +69,6 @@ class FrameTaker:
                     self._pipeline.stop()
                     return
 
-                cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
                 depth_map_show = None
                 depth_map_show = cv2.normalize(depth_image, depth_map_show, alpha=0, beta=255,
                                                norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
@@ -80,8 +79,6 @@ class FrameTaker:
                 self._last_image = depth_map_show
                 self._last_depth_image = depth_image
                 self._healthy = True
-                cv2.imshow('RealSense', depth_map_show)
-                cv2.waitKey(1)
 
         except IOError as e:
             print(e)
