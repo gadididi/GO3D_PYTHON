@@ -7,15 +7,13 @@ def run_all_tests():
 
     SQLConnector().init_tables().close()
     if truncation_test() is True:
-        print(f"Table has been truncated successfully")
         test_score += 1
         test_cases += 1
     else:
-        print(f"Table truncation has failed")
+        print(f"Table truncation was unsuccessful")
         test_cases += 1
 
     if result_insertion_test() is True:
-        print(f"Insertion test was successful")
         test_score += 1
         test_cases += 1
     else:
@@ -23,7 +21,6 @@ def run_all_tests():
         test_cases += 1
 
     if deletion_test() is True:
-        print(f"Deletion test was successful")
         test_score += 1
         test_cases += 1
     else:

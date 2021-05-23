@@ -8,6 +8,10 @@ def load_configs():
     configs.read('infra/configs.ini')
 
 
+def load_configs_for_tests():
+    configs.read('../src/infra/configs.ini')
+
+
 def get_integer(section, option):
     try:
         return configs.getint(section=section, option=option)
