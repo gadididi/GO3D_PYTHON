@@ -42,6 +42,7 @@ class SQLConnector:
                                             right_shoulder_to_elbow float,
                                             left_shoulder_to_elbow float,
                                             bmi_score float,
+                                            weight float,
                                             PRIMARY KEY (scan_name)
                                         ); """
         self._cursor.execute(sql_create_results_table)
@@ -82,12 +83,16 @@ class SQLConnector:
     def truncate_table(self):
         query_string = f"DROP TABLE scans"
         self._cursor.execute(query_string)
+        query_string = f"DROP TABLE results"
+        self._cursor.execute(query_string)
         clear_folder()
         self.init_tables()
         return self
 
     def delete_scan(self, scan_name):
         query_string = f"DELETE FROM scans WHERE scan_name = '{scan_name}'"
+        self._cursor.execute(query_string)
+        query_string = f"DELETE FROM results WHERE scan_name = '{scan_name}'"
         self._cursor.execute(query_string)
         clear_scan(scan_name)
         return self
@@ -107,25 +112,25 @@ class SQLConnector:
         right_shoulder_to_elbow = results['right_shoulder_to_elbow']
         left_shoulder_to_elbow = results['left_shoulder_to_elbow']
         bmi_score = results['bmi_score']
+        weight = results['weight']
 
         query_string = f"INSERT INTO results (scan_name, body_height, shoulders, abdomen, right_thigh, left_thigh, right_shoulder_to_elbow, " \
-                       f"left_shoulder_to_elbow, bmi_score) " \
+                       f"left_shoulder_to_elbow, bmi_score, weight) " \
                        f"VALUES ('{scan_name}', {body_height}, {shoulders}, {abdomen}, {right_thigh}, {left_thigh}, " \
-                       f"{right_shoulder_to_elbow}, {left_shoulder_to_elbow}, {bmi_score})"
-        print(query_string)
+                       f"{right_shoulder_to_elbow}, {left_shoulder_to_elbow}, {bmi_score}, {weight})"
         self._cursor.execute(query_string)
         self._conn.commit()
         return self
 
     def get_scan_results_by_name(self, scan_name):
         query_string = f"SELECT body_height, shoulders, abdomen, right_thigh, left_thigh, right_shoulder_to_elbow, " \
-                       f"left_shoulder_to_elbow, bmi_score FROM results WHERE scan_name = '{scan_name}' limit 1"
+                       f"left_shoulder_to_elbow, bmi_score, weight FROM results WHERE scan_name = '{scan_name}' limit 1"
         self._cursor.execute(query_string)
         retVal = self._cursor.fetchall()[0]
 
         results = {'body_height': retVal[0], 'shoulders': retVal[1], 'abdomen': retVal[2],
                    'right_thigh': retVal[3], 'left_thigh': retVal[4], 'right_shoulder_to_elbow': retVal[5],
-                   'left_shoulder_to_elbow': retVal[6], 'bmi_score': retVal[7]}
+                   'left_shoulder_to_elbow': retVal[6], 'bmi_score': retVal[7], 'weight': retVal[8]}
         return results
 
     def close(self):

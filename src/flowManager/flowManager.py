@@ -38,6 +38,7 @@ class FlowManager:
             frame_processor.start_processing()
             frame_processor.calculate_BMI(weight)
             results = frame_processor.get_results()
+            frame_processor.save_process_results()
             return results
         except KeyError:
             raise RuntimeError("process frames Failed, probably in detection body part section")
