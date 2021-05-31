@@ -151,11 +151,18 @@ class SQLConnector:
         for scan in scans:
             frame = self.load_only_one_frame(scan[0], 1)[0]
             try:
-                small_image = cv2.imread(frame[4])
-                small_image = cv2.resize(src=small_image, dsize=None, dst=None, fx=0.2, fy=0.2)
+                image = cv2.imread(frame[4])
+                _, buffer = cv2.imencode('.png', image)
+                big_png_as_text = base64.b64encode(buffer)
+
+                small_image = cv2.resize(src=image, dsize=None, dst=None, fx=0.2, fy=0.2)
                 _, buffer = cv2.imencode('.png', small_image)
-                png_as_text = base64.b64encode(buffer)
-                scans_to_return[scan[0]] = str(png_as_text)
+                small_png_as_text = base64.b64encode(buffer)
+
+                results = self.get_scan_results_by_name(scan[0])
+
+                scans_to_return[scan[0]] = [str(small_png_as_text), str(big_png_as_text), results]
+
             except Exception:
                 print(f"failed to load image: {frame[4]}")
 
