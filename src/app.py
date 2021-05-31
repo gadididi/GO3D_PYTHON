@@ -42,7 +42,7 @@ def download_scan_files(scan_id):
 @app.route('/settings/render_distance/<render_distance>', methods=['POST'])
 def settings(render_distance):
     try:
-        config.set_value("LIDAR", "lidar.render.distance", render_distance)
+        config.set_value("LIDAR", "lidar.render.distance", render_distance/10)
         return {'render_distance': True}
     except RuntimeError as e:
         print(e)
