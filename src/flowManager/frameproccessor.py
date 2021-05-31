@@ -75,19 +75,19 @@ class FrameProcessor:
         return self._results
 
     def generate_results(self):
-        self._results = {'body_height': round(self._calculated_height, 1), 'abdomen': round(self._calculated_abdomen_length, 1),
-                         'shoulders': round(self._calculated_shoulder_length, 1),
-                         'right_shoulder_to_elbow': round(self._calculated_right_shoulder_to_elbow, 1),
-                         'left_shoulder_to_elbow': round(self._calculated_left_shoulder_to_elbow, 1),
-                         'right_thigh': round(self._calculated_right_thigh, 1), 'left_thigh': round(self._calculated_left_thigh, 1)}
+        self._results = {'body_height': round(self._calculated_height, 2), 'abdomen': round(self._calculated_abdomen_length, 2),
+                         'shoulders': round(self._calculated_shoulder_length, 2),
+                         'right_shoulder_to_elbow': round(self._calculated_right_shoulder_to_elbow, 2),
+                         'left_shoulder_to_elbow': round(self._calculated_left_shoulder_to_elbow, 2),
+                         'right_thigh': round(self._calculated_right_thigh, 2), 'left_thigh': round(self._calculated_left_thigh, 2)}
 
     def calculate_BMI(self, weight):
         if self._calculated_height < 0:
             raise ValueError("Error: couldn't calculate BMI before calculating height")
         else:
             self._calculated_BMI_score = weight / (pow(self._calculated_height, 2))
-            self._results['bmi_score'] = round(self._calculated_BMI_score, 1)
-            self._results['weight'] = round(weight, 1)
+            self._results['bmi_score'] = round(self._calculated_BMI_score, 2)
+            self._results['weight'] = round(weight, 2)
 
     def save_process_results(self):
         sql_connector = SQLConnector()
