@@ -62,13 +62,13 @@ def sql_lite_test():
 
 if __name__ == '__main__':
     load_configs()
-    SQLConnector().check_if_scan_exists("test_21")
+    SQLConnector().check_if_scan_exists("test_20")
 
     print("config check")
     rows = config.get_integer('OPTIONS', 'frame.rows')
     print(rows)
-    take_frame("test_28")
-    depth, image, intrin = load_frame("test_28", 2)
+    # take_frame("test_31")
+    depth, image, intrin = load_frame("MonMay31202111,12,17GMT+0300(IsraelDaylightTime)", 1)
     optimizer = BodyPartsMeasurementOptimizer(depth)
     # print(1)
 
@@ -77,7 +77,7 @@ if __name__ == '__main__':
     pose_deploy = "detection/models/pose_deploy_linevec.prototxt"
 
     human_part_detector = HumanPartSegmentationDetector(model, caffe_model, pose_deploy)
-    body_parts = human_part_detector.find_body_points("fileStorage/test_10_image_1.png")
+    body_parts = human_part_detector.find_body_points("fileStorage/MonMay31202111,12,17GMT+0300(IsraelDaylightTime)_image_1.png")
 
     shoulders = body_parts['shoulders']
     abdomen = body_parts['abdomen']
@@ -107,8 +107,8 @@ if __name__ == '__main__':
     new_right_knee = optimizer.optimize_knee_position(validated_right_knee)
 
     new_head = optimizer.optimize_head_position(validated_head)
-    new_left_ankle = optimizer.optimize_knee_position(validated_left_ankle)
-    new_right_ankle = optimizer.optimize_knee_position(validated_right_ankle)
+    new_left_ankle = optimizer.optimize_ankle_position(validated_left_ankle)
+    new_right_ankle = optimizer.optimize_ankle_position(validated_right_ankle)
 
     bottom_leg_right = optimizer.validate_and_fix_corrupted_point(optimizer.find_lowest_bottom_point(new_right_ankle))
     bottom_leg_left = optimizer.validate_and_fix_corrupted_point(optimizer.find_lowest_bottom_point(new_left_ankle))

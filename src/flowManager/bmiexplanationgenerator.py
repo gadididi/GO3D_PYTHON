@@ -27,12 +27,12 @@ class BMIExplanationGenerator:
 
     def generate_explanation(self, bmi_score):
         if bmi_score < 14:
-            return self._extremely_below_average[random.randint(0, len(self._extremely_below_average) - 1)]
+            return self._extremely_below_average[random.randint(0, len(self._extremely_below_average) - 1)], 1
         elif bmi_score < 18:
-            return self._below_average[random.randint(0, len(self._below_average) - 1)]
+            return self._below_average[random.randint(0, len(self._below_average) - 1)], 2
         elif bmi_score < 25:
-            return self._average[random.randint(0, len(self._average) - 1)]
+            return self._average[random.randint(0, len(self._average) - 1)], 3
         elif bmi_score < 30:
-            return self._above_average[random.randint(0, len(self._above_average) - 1)]
+            return self._above_average[random.randint(0, len(self._above_average) - 1)], 4
         else:
-            return self._extremely_above_average[random.randint(0, len(self._extremely_above_average) - 1)]
+            return self._extremely_above_average[random.randint(0, len(self._extremely_above_average) - 1)], 5

@@ -13,7 +13,8 @@ def check_if_point_inside_the_frame(point):
 
 class BodyPartsMeasurementOptimizer:
     def __init__(self, depth_frame):
-        self._optimized_depth_frame = remove_outliers_by_depth_and_return_image(depth_frame, config.get_float('LIDAR', "lidar.render.distance"))
+        self._optimized_depth_frame = remove_outliers_by_depth_and_return_image(depth_frame, config.get_float('LIDAR',
+                                                                                                              "lidar.render.distance"))
 
     def find_height_version_2(self, head, right_ankle, intrin):
         right_foot = self.find_foot(right_ankle)
@@ -34,9 +35,9 @@ class BodyPartsMeasurementOptimizer:
                                     self._optimized_depth_frame, intrin)
 
         print("distances:")
-        print(from_head)
-        print(from_leg)
-        print(from_leg + from_head)
+        print(f"from_head: {from_head}")
+        print(f"from_leg: {from_leg}")
+        print(f"from_leg + from_head: {from_leg + from_head}")
         return from_leg + from_head
 
     def find_height(self, right_ankle, left_ankle, head, intrin):
@@ -55,7 +56,6 @@ class BodyPartsMeasurementOptimizer:
         height = distance_to_right_foot * math.sin(alpha)
 
         print("distances:")
-        print(height)
         print(height)
 
         print("average:")
@@ -188,6 +188,30 @@ class BodyPartsMeasurementOptimizer:
         print(f"knee left border: {knee_left_border} knee right border: {knee_right_border}")
         new_knee_point_cols = round((knee_right_border + knee_left_border) / 2)
         return new_knee_point_cols, new_knee_point_rows
+
+    def optimize_ankle_position(self, ankle_point):
+        new_ankle_point_cols = ankle_point[0]
+        new_ankle_point_rows = ankle_point[1]
+
+        # right ankle border
+        ankle_right_border = new_ankle_point_cols
+        depth = self._optimized_depth_frame[new_ankle_point_rows, ankle_right_border]
+        while depth < 1000 and ankle_right_border < 638:
+            depth = self._optimized_depth_frame[new_ankle_point_rows, ankle_right_border + 1]
+            if depth < 1000:
+                ankle_right_border = ankle_right_border + 1
+
+        # left ankle border
+        ankle_left_border = new_ankle_point_cols
+        depth = self._optimized_depth_frame[new_ankle_point_rows, ankle_left_border]
+        while depth < 1000 and ankle_left_border > 1:
+            depth = self._optimized_depth_frame[new_ankle_point_rows, ankle_left_border - 1]
+            if depth < 1000:
+                ankle_left_border = ankle_left_border - 1
+
+        print(f"ankle left border: {ankle_left_border} ankle right border: {ankle_right_border}")
+        new_ankle_point_cols = round((ankle_right_border + ankle_left_border) / 2)
+        return self.find_foot((new_ankle_point_cols, new_ankle_point_rows))
 
     def find_lowest_bottom_point(self, ankle_point):
         new_ankle_point_cols = ankle_point[0]

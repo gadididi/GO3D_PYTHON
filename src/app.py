@@ -132,9 +132,9 @@ def restart_scan():
 def get_bmi_explanation(bmi_score):
     try:
         explanation = flow_manager.generate_bmi_explanation(bmi_score)
-        return {'bmi_explanation': True, 'explanation': explanation}
+        return {'bmi_explanation': True, 'explanation': explanation[0], 'type': explanation[1]}
     except RuntimeError:
-        return {'bmi_explanation': False, 'explanation': False}
+        return {'bmi_explanation': False, 'explanation': False, 'type': False}
 
 
 @app.route('/scan/cancel_scan', methods=['GET'])
