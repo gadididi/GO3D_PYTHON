@@ -25,23 +25,29 @@ def index():
 # ----------------------------------------------- History section ---------------------------------------------
 @app.route('/scan_history', methods=['GET'])
 def scan_history():
+    sql_conn = SQLConnector()
     try:
-        scans = sql_connector.get_last_k_scans(10)
+        scans = sql_conn.get_last_k_scans(10)
         return {'scans': scans}
     except RuntimeError as e:
         print(e)
         return {'scans': False}
+    finally:
+        sql_conn.close()
 
 
 @app.route('/scan_history/watch/<scan_name>', methods=['GET'])
 def watch_scan(scan_name):
+    sql_conn = SQLConnector()
     try:
-        results = sql_connector.get_scan_results_by_name(scan_name)
+        results = sql_conn.get_scan_results_by_name(scan_name)
         get_cv_image_base_64 = sql_connector.get_cv_image_base_64(scan_name)
         return {'scans': results, 'image': get_cv_image_base_64}
     except RuntimeError as e:
         print(e)
         return {'scans': False, 'image': False}
+    finally:
+        sql_conn.close()
 
 
 # ----------------------------------------------- Settings section ---------------------------------------------
