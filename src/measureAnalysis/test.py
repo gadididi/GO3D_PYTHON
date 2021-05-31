@@ -62,7 +62,8 @@ def sql_lite_test():
 
 if __name__ == '__main__':
     load_configs()
-    SQLConnector().check_if_scan_exists("test_20")
+    # scans = SQLConnector().get_last_k_scans(10)
+    get_cv_image_base_64 = SQLConnector().get_cv_image_base_64("test_21")
 
     print("config check")
     rows = config.get_integer('OPTIONS', 'frame.rows')

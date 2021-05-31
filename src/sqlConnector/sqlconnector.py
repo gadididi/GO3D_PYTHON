@@ -1,5 +1,7 @@
+import base64
 import os
 import sqlite3
+import cv2
 
 
 def clear_folder():
@@ -103,6 +105,13 @@ class SQLConnector:
         retVal = self._cursor.fetchall()
         return retVal
 
+    def get_cv_image_base_64(self, scan_name):
+        frame = self.load_only_one_frame(scan_name, 1)[0]
+        image = cv2.imread(frame[4])
+        _, buffer = cv2.imencode('.png', image)
+        png_as_text = base64.b64encode(buffer)
+        return png_as_text
+
     def save_scan_results(self, scan_name, results):
         body_height = results['body_height']
         shoulders = results['shoulders']
@@ -132,6 +141,25 @@ class SQLConnector:
                    'right_thigh': retVal[3], 'left_thigh': retVal[4], 'right_shoulder_to_elbow': retVal[5],
                    'left_shoulder_to_elbow': retVal[6], 'bmi_score': retVal[7], 'weight': retVal[8]}
         return results
+
+    def get_last_k_scans(self, k):
+        query_string = f"SELECT scan_name, image_location FROM scans ORDER BY rowid DESC limit {k}"
+        self._cursor.execute(query_string)
+        scans = self._cursor.fetchall()
+
+        scans_to_return = {}
+        for scan in scans:
+            frame = self.load_only_one_frame(scan[0], 1)[0]
+            try:
+                small_image = cv2.imread(frame[4])
+                small_image = cv2.resize(src=small_image, dsize=None, dst=None, fx=0.2, fy=0.2)
+                _, buffer = cv2.imencode('.png', small_image)
+                png_as_text = base64.b64encode(buffer)
+                scans_to_return[scan[0]] = str(png_as_text)
+            except Exception:
+                print(f"failed to load image: {frame[4]}")
+
+        return scans_to_return
 
     def close(self):
         self._cursor.close()
