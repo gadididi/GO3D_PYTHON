@@ -1,5 +1,6 @@
 import threading
 
+from src.flowManager.bmiexplanationgenerator import BMIExplanationGenerator
 from src.flowManager.frameproccessor import FrameProcessor
 from src.flowManager.mlconfig import MLConfig
 from src.frameSaver import saveframe
@@ -11,6 +12,7 @@ class FlowManager:
     def __init__(self):
         self._frameTaker = FrameTaker()
         self._ML_config = MLConfig()
+        self._bmi_explanation_generator = BMIExplanationGenerator()
         self._frame_processor = None
 
     def start_scan_stream(self):
@@ -57,3 +59,6 @@ class FlowManager:
 
     def clear_cache(self):
         self._frameTaker.reset_cache()
+
+    def generate_bmi_explanation(self, bmi_score):
+        return self._bmi_explanation_generator.generate_explanation(bmi_score)

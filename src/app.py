@@ -92,6 +92,7 @@ def take_snapshot_during_scan():
 def save_scan(scan_name):
     try:
         flow_manager.get_and_save_scan_saved_frames(scan_name)
+        flow_manager.clear_cache()
         print("finish to save")
         return {'save_scan': True}
     except RuntimeError:
@@ -125,6 +126,15 @@ def restart_scan():
         return {'restart_scan': True}
     except RuntimeError:
         return {'restart_scan': False}
+
+
+@app.route('/scan/get_bmi_explanation/<bmi_score>', methods=['GET'])
+def get_bmi_explanation(bmi_score):
+    try:
+        explanation = flow_manager.generate_bmi_explanation(bmi_score)
+        return {'bmi_explanation': True, 'explanation': explanation}
+    except RuntimeError:
+        return {'bmi_explanation': False, 'explanation': False}
 
 
 @app.route('/scan/cancel_scan', methods=['GET'])
