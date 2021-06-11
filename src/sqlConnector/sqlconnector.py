@@ -4,12 +4,14 @@ import sqlite3
 import cv2
 
 
+# clean all the files from the file system under the file storage
 def clear_folder():
     for file in os.scandir("fileStorage"):
         if file.name.endswith(".txt") or file.name.endswith(".png"):
             os.unlink(file.path)
 
 
+# clean all the files that are related to a specific scan from the file system
 def clear_scan(scan_name):
     for file in os.scandir("fileStorage"):
         if file.name.startswith(scan_name):
@@ -151,10 +153,12 @@ class SQLConnector:
         for scan in scans:
             frame = self.load_only_one_frame(scan[0], 1)[0]
             try:
+                # convert the png image to base64 in order to send it to the UI
                 image = cv2.imread(frame[4])
                 _, buffer = cv2.imencode('.png', image)
                 big_png_as_text = base64.b64encode(buffer)
 
+                # resizes the png image and convert the png image to base64 in order to send it to the UI
                 small_image = cv2.resize(src=image, dsize=None, dst=None, fx=0.2, fy=0.2)
                 _, buffer = cv2.imencode('.png', small_image)
                 small_png_as_text = base64.b64encode(buffer)

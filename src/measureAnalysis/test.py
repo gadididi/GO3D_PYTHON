@@ -111,10 +111,10 @@ if __name__ == '__main__':
     new_left_ankle = optimizer.optimize_ankle_position(validated_left_ankle)
     new_right_ankle = optimizer.optimize_ankle_position(validated_right_ankle)
 
-    bottom_leg_right = optimizer.validate_and_fix_corrupted_point(optimizer.find_lowest_bottom_point(new_right_ankle))
-    bottom_leg_left = optimizer.validate_and_fix_corrupted_point(optimizer.find_lowest_bottom_point(new_left_ankle))
+    bottom_leg_right = optimizer.validate_and_fix_corrupted_point(optimizer.find_ankles_lowest_point(new_right_ankle))
+    bottom_leg_left = optimizer.validate_and_fix_corrupted_point(optimizer.find_ankles_lowest_point(new_left_ankle))
 
-    optimizer.find_height_version_2(new_head, bottom_leg_right, intrin)
+    optimizer.find_height_from_head_to_legs(new_head, bottom_leg_right, intrin)
 
     optimizer.find_height(bottom_leg_right, bottom_leg_left, new_head, intrin)
 

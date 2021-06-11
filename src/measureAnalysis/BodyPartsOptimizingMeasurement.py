@@ -12,26 +12,31 @@ def check_if_point_inside_the_frame(point):
 
 
 class BodyPartsMeasurementOptimizer:
+
+    # when init an optimiser, remove it's outliers and optimize the depth image before measuring or optimizing anything else.
     def __init__(self, depth_frame):
         self._optimized_depth_frame = remove_outliers_by_depth_and_return_image(depth_frame, config.get_float('LIDAR',
                                                                                                               "lidar.render.distance"))
 
-    def find_height_version_2(self, head, right_ankle, intrin):
-        right_foot = self.find_foot(right_ankle)
-        right_foot_point_cols = right_foot[0]
-        right_foot_point_rows = right_foot[1]
+    # measure distance in two parts:
+    # first, traverse on the image from the foot and up, until you exit the body space.
+    # second, sum the distances between that point of exit to the head and leg.
+    def find_height_from_head_to_legs(self, head, ankle, intrin):
+        foot = self.find_foot(ankle)
+        foot_point_cols = foot[0]
+        foot_point_rows = foot[1]
 
-        line_from_right_foot_rows = right_foot_point_rows
-        depth = self._optimized_depth_frame[line_from_right_foot_rows, right_foot_point_cols]
-        while depth < 1000 and line_from_right_foot_rows > 1:
-            depth = self._optimized_depth_frame[line_from_right_foot_rows - 1, right_foot_point_cols]
+        line_from_foot_rows = foot_point_rows
+        depth = self._optimized_depth_frame[line_from_foot_rows, foot_point_cols]
+        while depth < 1000 and line_from_foot_rows > 1:
+            depth = self._optimized_depth_frame[line_from_foot_rows - 1, foot_point_cols]
             if depth < 1000:
-                line_from_right_foot_rows = line_from_right_foot_rows - 1
+                line_from_foot_rows = line_from_foot_rows - 1
 
         head_point_cols = head[0]
-        from_head = measure_distance(head, (head_point_cols, line_from_right_foot_rows), self._optimized_depth_frame,
+        from_head = measure_distance(head, (head_point_cols, line_from_foot_rows), self._optimized_depth_frame,
                                      intrin)
-        from_leg = measure_distance(right_foot, (right_foot_point_cols, line_from_right_foot_rows),
+        from_leg = measure_distance(foot, (foot_point_cols, line_from_foot_rows),
                                     self._optimized_depth_frame, intrin)
 
         print("distances:")
@@ -40,6 +45,7 @@ class BodyPartsMeasurementOptimizer:
         print(f"from_leg + from_head: {from_leg + from_head}")
         return from_leg + from_head
 
+    # calculates the height from the head to both of the feet, than returns the average
     def find_height(self, right_ankle, left_ankle, head, intrin):
 
         right_foot = self.find_foot(right_ankle)
@@ -61,6 +67,7 @@ class BodyPartsMeasurementOptimizer:
         print("average:")
         print((distance_to_left_foot + distance_to_right_foot) / 2)
 
+    # travers on the depth image in order to find the lowest point of the foot in the picture.
     def find_foot(self, ankle):
         ankle_point_cols = ankle[0]
         ankle_point_rows = ankle[1]
@@ -74,6 +81,7 @@ class BodyPartsMeasurementOptimizer:
                 bottom_ankle_border = bottom_ankle_border + 1
         return ankle_point_cols, bottom_ankle_border
 
+    # travers on the depth image in order to find the highest point of the middle of the head.
     def optimize_head_position(self, head_point):
         new_head_point_cols = head_point[0]
         new_head_point_rows = head_point[1]
@@ -106,6 +114,9 @@ class BodyPartsMeasurementOptimizer:
 
         return self.advanced_head_optimization((new_head_point_cols, head_top_border))
 
+    # after finding the highest point of the middle of the head, sometimes the head is tilted and causing the heights
+    # point of the head to be somewhere else than the center of the head.
+    # this method will perform a circular search in order to find that top point.
     def advanced_head_optimization(self, head):
         new_head_point_cols = head[0]
         new_head_point_rows = head[1]
@@ -123,6 +134,7 @@ class BodyPartsMeasurementOptimizer:
 
         return new_head_point_cols, new_head_point_rows
 
+    # optimizes the shoulder positions and straightens the line between the right and the left shoulders.
     def optimize_shoulders_position(self, point1, point2):
         average_height = round((point1[1] + point2[1]) / 2)
 
@@ -144,6 +156,7 @@ class BodyPartsMeasurementOptimizer:
 
         return (shoulder_left_border, average_height), (shoulder_right_border, average_height)
 
+    # optimizes the abdomen position and straightens the line between the right and the left points of the abdomen.
     def optimize_abdomen_position(self, point1, point2):
         average_height = round((point1[1] + point2[1]) / 2)
 
@@ -165,6 +178,7 @@ class BodyPartsMeasurementOptimizer:
 
         return (abdomen_left_border, average_height), (abdomen_right_border, average_height)
 
+    # optimizes the knee position by centering the point to the middle of the knee.
     def optimize_knee_position(self, knee_point):
         new_knee_point_cols = knee_point[0]
         new_knee_point_rows = knee_point[1]
@@ -185,10 +199,10 @@ class BodyPartsMeasurementOptimizer:
             if depth < 1000:
                 knee_left_border = knee_left_border - 1
 
-        print(f"knee left border: {knee_left_border} knee right border: {knee_right_border}")
         new_knee_point_cols = round((knee_right_border + knee_left_border) / 2)
         return new_knee_point_cols, new_knee_point_rows
 
+    # optimizes the ankle position by centering the point to the middle of the ankle.
     def optimize_ankle_position(self, ankle_point):
         new_ankle_point_cols = ankle_point[0]
         new_ankle_point_rows = ankle_point[1]
@@ -209,11 +223,11 @@ class BodyPartsMeasurementOptimizer:
             if depth < 1000:
                 ankle_left_border = ankle_left_border - 1
 
-        print(f"ankle left border: {ankle_left_border} ankle right border: {ankle_right_border}")
         new_ankle_point_cols = round((ankle_right_border + ankle_left_border) / 2)
         return self.find_foot((new_ankle_point_cols, new_ankle_point_rows))
 
-    def find_lowest_bottom_point(self, ankle_point):
+    # traversing on the depth image in order to find the lowest point of the ankle.
+    def find_ankles_lowest_point(self, ankle_point):
         new_ankle_point_cols = ankle_point[0]
         new_ankle_point_rows = ankle_point[1]
 
@@ -227,6 +241,9 @@ class BodyPartsMeasurementOptimizer:
 
         return new_ankle_point_cols, new_ankle_point_rows
 
+    # in order to make the measuring more robust, given a point, validate it is on the person and not pointing to the
+    # background. If its corrupted, try to find the nearest valid point (as corrupted points are usually quite close to
+    # the valid and true point.
     def validate_and_fix_corrupted_point(self, point):
         depth = self._optimized_depth_frame[point[1], point[0]]
         if depth < 1000:
@@ -237,6 +254,7 @@ class BodyPartsMeasurementOptimizer:
             print(f"point isn't valid, changing to {new_point}")
             return new_point
 
+    # performs a circular search in order to find the nearest valid point of a corrupted point (the points on the background)
     def find_nearest_valid_point(self, point):
         point_cols = point[0]
         point_rows = point[1]

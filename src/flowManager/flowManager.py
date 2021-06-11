@@ -11,7 +11,7 @@ class FlowManager:
 
     def __init__(self):
         self._frameTaker = FrameTaker()
-        self._ML_config = MLConfig()
+        self._ML_config = MLConfig()  # init configs for the body parts ML model
         self._bmi_explanation_generator = BMIExplanationGenerator()
         self._frame_processor = None
 

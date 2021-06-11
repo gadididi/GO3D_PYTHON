@@ -24,6 +24,7 @@ class FrameProcessor:
         self._calculated_BMI_score = 0
 
     def start_processing(self):
+        # run the body parts detector on the image
         human_part_detector = self._ml_config.get_human_parts_detector()
         body_parts = human_part_detector.find_body_points(f"fileStorage/{self._frame_name}_image_1.png")
 
@@ -34,7 +35,7 @@ class FrameProcessor:
         knees = body_parts['knees']
         elbows = body_parts['elbows']
 
-        # validation
+        # validation and optimization of the points found by the model
         validated_left_shoulder = self._optimizer.validate_and_fix_corrupted_point(shoulders[0])
         validated_right_shoulder = self._optimizer.validate_and_fix_corrupted_point(shoulders[1])
         validated_left_abdomen = self._optimizer.validate_and_fix_corrupted_point(abdomen[0])
@@ -55,11 +56,12 @@ class FrameProcessor:
         new_left_ankle = self._optimizer.optimize_knee_position(validated_left_ankle)
         new_right_ankle = self._optimizer.optimize_knee_position(validated_right_ankle)
 
-        calculated_height_right = self._optimizer.find_height_version_2(new_head, new_right_ankle, self._intrin)
-        calculated_height_left = self._optimizer.find_height_version_2(new_head, new_left_ankle, self._intrin)
-
+        # calculate the height from the head to the legs and choose the max between legs
+        calculated_height_right = self._optimizer.find_height_from_head_to_legs(new_head, new_right_ankle, self._intrin)
+        calculated_height_left = self._optimizer.find_height_from_head_to_legs(new_head, new_left_ankle, self._intrin)
         self._calculated_height = max(calculated_height_left, calculated_height_right)
 
+        # calculate body parts sizes by measuring the distance between two given points.
         self._calculated_abdomen_length = measure_distance(new_abdomen[0], new_abdomen[1], self._depth, self._intrin)
         self._calculated_shoulder_length = measure_distance(new_shoulder[0], new_shoulder[1], self._depth, self._intrin)
         self._calculated_right_shoulder_to_elbow = measure_distance(new_shoulder[0], validated_left_elbow, self._depth,
@@ -69,6 +71,7 @@ class FrameProcessor:
         self._calculated_right_thigh = measure_distance(new_abdomen[1], new_right_knee, self._depth, self._intrin)
         self._calculated_left_thigh = measure_distance(new_abdomen[0], new_left_knee, self._depth, self._intrin)
 
+        # saves the results in-memory
         self.generate_results()
 
     def get_results(self):
@@ -85,6 +88,7 @@ class FrameProcessor:
         if self._calculated_height < 0:
             raise ValueError("Error: couldn't calculate BMI before calculating height")
         else:
+            # BMI Score = weight / (height^2)
             self._calculated_BMI_score = weight / (pow(self._calculated_height, 2))
             self._results['bmi_score'] = round(self._calculated_BMI_score, 2)
             self._results['weight'] = round(weight, 2)
