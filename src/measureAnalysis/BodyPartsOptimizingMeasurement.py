@@ -259,7 +259,7 @@ class BodyPartsMeasurementOptimizer:
         point_cols = point[0]
         point_rows = point[1]
 
-        for k in range(1, 10):
+        for k in range(1, config.get_integer('OPTIONS', 'optimization.corruptedPointFixRadius')):
             for i in range(k * (-1), k):
                 for j in range(k * (-1), k):
                     if check_if_point_inside_the_frame((point_cols + i, point_rows + j)):
