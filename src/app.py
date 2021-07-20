@@ -24,7 +24,7 @@ def index():
 def scan_history():
     sql_conn = SQLConnector()
     try:
-        scans = sql_conn.get_last_k_scans(10)
+        scans = sql_conn.get_last_k_scans(config.get_integer('OPTIONS', 'scans.k.last'))
         return {'scans': scans}
     except RuntimeError as e:
         print(e)

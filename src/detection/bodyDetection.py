@@ -1,7 +1,6 @@
 import cv2
-import numpy as np
 import matplotlib
-from matplotlib import pyplot as plt
+import numpy as np
 from tensorflow.keras.models import load_model
 
 matplotlib.use("TkAgg")
