@@ -64,7 +64,7 @@ class HumanPartSegmentationDetector:
         print("start the measuring....")
         body_parts = {}
         shoulders = self.find_shoulders_point(body_points, segmentation_image)
-        abdomen = self.find_abdomen_point(body_points, segmentation_image)
+        abdomen = self.find_abdomen_point(body_points)
         chest = self.find_chest_point(body_points)
         knees = self.find_knee_point(body_points)
         arms = self.find_arms_point(body_points)
@@ -140,7 +140,7 @@ class HumanPartSegmentationDetector:
             right_s_new = l_tmp[0].max()
             return (left_s_new, left_s[1]), (right_s_new, right_s[1])
 
-    def find_abdomen_point(self, body_points, segmentation_image):
+    def find_abdomen_point(self, body_points):
         if self.body_parts_caffe['left_abdomen'] in body_points and self.body_parts_caffe['right_abdomen'] in body_points:
             left_ab = body_points[self.body_parts_caffe['left_abdomen']]
             right_ab = body_points[self.body_parts_caffe['right_abdomen']]
